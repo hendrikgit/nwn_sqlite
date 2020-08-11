@@ -63,7 +63,7 @@ template findIt(s, pred: untyped): untyped =
 
 let mTlkName = tlks.findIt it.endsWith("dialog.tlk")
 if mTlkName.isSome:
-  echo "Adding dialog.tlk"
+  echo "Adding dialog.tlk: " & mTlkName.get
   rm.add(mTlkName.get.newResFile)
 else:
   echo "dialog.tlk not found"
@@ -112,11 +112,12 @@ for hak in ifo["Mod_HakList", GffList]:
   let hakName = hak["Mod_Hak", GffCExoString] & ".hak"
   let hak = haks.findIt it.endsWith(hakName)
   if hak.isSome:
-    echo "Adding hak: " & hakName
+    echo "Hak: " & hakName
     let hakErf = hak.get.getErf("HAK ")
     for rr in hakErf.contents:
       if rr.resType == "2da".getResType:
         let content = hakErf[rr].get.readAll
+        echo "  " & $rr
         rm.add content.newStringStream.newResMemFile(rr, content.len, $rr)
   else:
     echo "Hak required by module not found: " & hakName
