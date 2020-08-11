@@ -19,10 +19,12 @@ proc writeDb*[T](s: seq[T], filename, tablename: string) =
   let db = open(filename, "", "", "")
   db.exec(sql("drop table if exists " & tablename))
   createTable(db, tablename, cols)
+  db.exec(sql"begin transaction")
   let insertcols = "insert into " & tablename & " (" & cols.mapIt(it.name).join(",") & ")"
   for el in s:
     var values = newSeq[string]()
     for _, v in el.fieldPairs:
       values &= $v
     db.exec(sql(insertcols & " values (" & newSeqWith(values.len, "?").join(",") & ")"), values)
+  db.exec(sql"commit")
   db.close
