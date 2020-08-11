@@ -1,5 +1,6 @@
 import os, sequtils, streams, strutils, tables
 import neverwinter/[erf, gff, key, resfile, resman, resmemfile, tlk, twoda]
+import db
 
 if paramCount() < 2:
   echo """
@@ -211,5 +212,5 @@ for palcus in palcusNames:
   of "creaturepalcus":
     let creatures = list.creatureList
     echo "Entries: " & $creatures.len
-    echo creatures[0]
-    echo creatures[^1]
+    echo "Writing sqlite db file: " & palcus & ".db"
+    creatures.writeDb(palcus & ".db", palcus)
