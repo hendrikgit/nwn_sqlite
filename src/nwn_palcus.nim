@@ -212,5 +212,6 @@ for palcus in palcusNames:
   of "creaturepalcus":
     let creatures = list.creatureList
     echo "Entries: " & $creatures.len
-    echo "Writing sqlite db file: " & palcus & ".db"
-    creatures.writeDb(palcus & ".db", palcus)
+    let dbfilename = palcus & ".sqlite3"
+    echo "Writing sqlite db file: " & dbfilename
+    creatures.writeDb(dbfilename, palcus)
