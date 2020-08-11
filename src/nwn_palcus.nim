@@ -1,28 +1,48 @@
 import os, sequtils, streams, strutils, tables
 import neverwinter/[erf, gff, key, resfile, resman, tlk, twoda]
 
-# todo: provide module and all other dirs via arguments, first one has to be module, rest dirs that will be searched and added to resman
-# todo: check that module file exists and is indeed of type mod
+if paramCount() < 2:
+  echo """
+First parameter: A module file.
+All other paramters: Directories that will be searched for
+.key, .bif, .hak and .tlk files.
 
-const
-  moduleName = "/home/hal/git/sfee/server/modules/SoulForge.mod"
-  dataDirs = [
-    "/home/hal/git/sfee/nwn-data/data",
-    "/home/hal/git/sfee/server/hak",
-    "/home/hal/git/sfee/server/tlk",
-  ]
+At least one directory is required. Please make sure a dialog.tlk
+and all files the module requires are in the directories you
+provided as parameters.
+"""
+  quit(QuitFailure)
+
+proc getErf(file, erfType: string): Erf =
+  try:
+    result = file.openFileStream.readErf
+  except:
+    echo "Could not read file. Is it a valid ERF/" & erfType.strip & " file?"
+    quit(QuitFailure)
+  if result.fileType != erfType:
+    echo "Not a " & erfType & " file: " & result.fileType
+    quit(QuitFailure)
+
+echo "Module: " & paramStr(1)
+if not paramStr(1).fileExists:
+  echo "Module file not found."
+  quit(QuitFailure)
 
 let
+  module = paramStr(1).getErf("MOD ")
+  dataDirs = commandLineParams()[1 .. ^1]
   palcusNames = [
     "creaturepalcus",
     #"itempalcus",
     #"placeablepalcus",
   ]
-  module = moduleName.openFileStream.readErf
   rm = newResMan() # container added last to resman will be queried first
 
 var keys, bifs, haks, tlks: seq[string]
 for dir in dataDirs:
+  if not dir.dirExists:
+    echo "Directory not found: " & dir
+    quit(QuitFailure)
   for file in dir.joinPath("*").walkFiles:
     case file.splitFile.ext
     of ".key":
@@ -52,13 +72,14 @@ let mTlk = rm[newResRef("dialog", "tlk".getResType)].get.readAll.newStringStream
 
 for key in keys:
   echo "Adding key: " & key
-  let keytable = key.openFileStream.readKeyTable proc (fn: string): Stream =
+  let keytable = key.openFileStream.readKeyTable(key, proc (fn: string): Stream =
     let bif = bifs.findIt it.endsWith(fn)
     if bif.isSome:
       bif.get.openFileStream
     else:
       echo "File referenced by key not found: " & fn
       quit(QuitFailure)
+  )
   rm.add(keytable)
 
 let ifo = module[newResRef("module", "ifo".getResType)].get.readAll.newStringStream.readGffRoot
@@ -97,7 +118,11 @@ for hak in ifo["Mod_HakList", GffList]:
     echo "Hak required by module not found: " & hakName
     quit(QuitFailure)
 
-let classes2da = rm[newResRef("classes", "2da".getResType)].get.readAll.newStringStream.readTwoDA
+let classes2da = if rm.contains(newResRef("classes", "2da".getResType)):
+  rm[newResRef("classes", "2da".getResType)].get.readAll.newStringStream.readTwoDA
+else:
+  echo "classes.2da not found"
+  quit(QuitFailure)
 
 type
   Creature = object
