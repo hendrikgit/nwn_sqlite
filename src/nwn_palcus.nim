@@ -1,5 +1,5 @@
 import os, sequtils, streams, strutils, tables
-import neverwinter/[erf, gff, key, resfile, resman, tlk, twoda]
+import neverwinter/[erf, gff, key, resfile, resman, resmemfile, tlk, twoda]
 
 if paramCount() < 2:
   echo """
@@ -113,7 +113,11 @@ for hak in ifo["Mod_HakList", GffList]:
   let hak = haks.findIt it.endsWith(hakName)
   if hak.isSome:
     echo "Adding hak: " & hakName
-    rm.add(hak.get.newResFile)
+    let hakErf = hak.get.getErf("HAK ")
+    for rr in hakErf.contents:
+      if rr.resType == "2da".getResType:
+        let content = hakErf[rr].get.readAll
+        rm.add content.newStringStream.newResMemFile(rr, content.len, $rr)
   else:
     echo "Hak required by module not found: " & hakName
     quit(QuitFailure)
