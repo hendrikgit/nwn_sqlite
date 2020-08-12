@@ -78,12 +78,6 @@ for hak in ifo["Mod_HakList", GffList]:
     echo "Hak required by module not found: " & hakName
     quit(QuitFailure)
 
-let classes2da = if rm.contains(newResRef("classes", "2da".getResType)):
-  rm[newResRef("classes", "2da".getResType)].get.readAll.newStringStream.readTwoDA
-else:
-  echo "classes.2da not found"
-  quit(QuitFailure)
-
 proc getGffRoot(resref, restype: string): GffRoot =
   getGffRoot(resref, restype, module, rm)
 
@@ -94,7 +88,7 @@ for palcus in palcusNames:
     list = itpGffRoot["MAIN", GffList].flatten
   case palcus
   of "creaturepalcus":
-    let creatures = list.creatureList(module, rm, dlg, cTlk, classes2da)
+    let creatures = list.creatureList(module, rm, dlg, cTlk)
     echo "Entries: " & $creatures.len
     let dbfilename = palcus & ".sqlite3"
     echo "Writing sqlite db file: " & dbfilename

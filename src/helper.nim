@@ -1,5 +1,5 @@
 import os, options, sequtils, streams, strutils
-import neverwinter/[erf, gff, resman, tlk]
+import neverwinter/[erf, gff, resman, tlk, twoda]
 
 template findIt*(s, pred: untyped): untyped =
   var result: Option[type(s[0])]
@@ -14,6 +14,13 @@ proc flatten*(list: GffList): GffList =
       result.insert li["LIST", GffList].flatten
     else:
       result &= li
+
+proc get2da*(name: string, rm: ResMan): TwoDA =
+  if rm.contains(newResRef(name, "2da".getResType)):
+    result = rm[newResRef(name, "2da".getResType)].get.readAll.newStringStream.readTwoDA
+  else:
+    echo name & ".2da not found"
+    quit(QuitFailure)
 
 proc getDataFiles*(dataDirs: seq[string]): seq[string] =
   for dir in dataDirs:
