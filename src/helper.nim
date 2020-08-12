@@ -34,7 +34,7 @@ proc getErf*(file, erfType: string): Erf =
     echo "Not a " & erfType & " file: " & result.fileType
     quit(QuitFailure)
 
-proc getGff*(resref, restype: string, module: Erf, rm: ResMan): GffRoot =
+proc getGffRoot*(resref, restype: string, module: Erf, rm: ResMan): GffRoot =
   let resref = newResRef(resref, restype.getResType)
   # get from module first, then from resman
   var gffContent = ""

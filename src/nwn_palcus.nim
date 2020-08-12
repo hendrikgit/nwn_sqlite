@@ -84,13 +84,13 @@ else:
   echo "classes.2da not found"
   quit(QuitFailure)
 
-proc getGff(resref, restype: string): GffRoot =
-  getGff(resref, restype, module, rm)
+proc getGffRoot(resref, restype: string): GffRoot =
+  getGffRoot(resref, restype, module, rm)
 
 for palcus in palcusNames:
   echo palcus
   let
-    itpGffRoot = palcus.getGff("itp")
+    itpGffRoot = palcus.getGffRoot("itp")
     list = itpGffRoot["MAIN", GffList].flatten
   case palcus
   of "creaturepalcus":

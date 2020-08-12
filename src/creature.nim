@@ -37,14 +37,14 @@ proc parentFactionTable(repute: GffRoot): Table[string, string] =
     result[name] = names.getOrDefault(fac["FactionParentID", GffDword].int, name)
 
 proc creatureList*(list: GffList, module: Erf, rm: ResMan, dlg: SingleTlk, tlk: Option[SingleTlk], classes2da: TwoDA): seq[Creature] =
-  let facParents = "repute".getGff("fac", module, rm).parentFactionTable
+  let facParents = "repute".getGffRoot("fac", module, rm).parentFactionTable
   for li in list:
     if not li.hasField("RESREF", GffResRef): continue
     let
       faction = li["FACTION", GffCExoString]
       resref = $li["RESREF", GffResRef]
       name = if li.hasField("NAME", GffCExoString): li["NAME", GffCExoString] else: li["STRREF", GffDword].tlkText(dlg, tlk)
-      utc = resref.getGff("utc", module, rm)
+      utc = resref.getGffRoot("utc", module, rm)
       classes = utc["ClassList", GffList].classes(classes2da, dlg, tlk)
     result &= Creature(
       name: name,
