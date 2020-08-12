@@ -20,6 +20,8 @@ At minimum a path to a `dialog.tlk` and `classes.2da` file is needed (in additon
 
 A good start can be to run the program and keep adding directories, there should be (hopefully) helpful error messages.
 
+A database file with the name `creaturepalcus.sqlite3` will be written. **Warning: If that file already exists and is a sqlite database the existing table called `creaturepalcus` in there will be dropped.**
+
 Example program call on Linux:
 ```
 ./nwn_palcus ~/sfee/server/modules/SoulForge.mod ~/Beamdog\ Library/00785/lang/en/data/ ~/sfee/server/tlk/ ~/sfee/server/hak
@@ -37,4 +39,6 @@ On my computer with my module file it took less than 200ms to create the sqlite3
 ## Build
 * Install [Nim](https://nim-lang.org/)
 * Clone this repo
+* A sqlite3 library (like libsqlite3 on Debian) needs to be installed on your system (or see the last point)
 * Run `nimble build -d:release`
+* For creating a static binary use the nimble tasks defined in [nwn_palcus.nimble](nwn_palcus.nimble). Run `nimble musl`. This assumes you are on Linux.
