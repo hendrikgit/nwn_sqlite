@@ -1,5 +1,5 @@
-import options, strutils
-import neverwinter/[gff, tlk, twoda]
+import options, strutils, tables
+import neverwinter/[erf, gff, resman, tlk, twoda]
 import helper
 
 type
@@ -28,3 +28,37 @@ proc classes*(classList: GffList, classes2da: TwoDA, dlg: SingleTlk, tlk: Option
   if classList.len == 3:
     result.class3 = classes2da[classList[2]["Class", GffInt], "Name"].get.parseInt.StrRef.tlkText(dlg, tlk)
     result.level3 = classList[2]["ClassLevel", GffShort]
+
+proc creatureList*(list: GffList, module: Erf, rm: ResMan, dlg: SingleTlk, tlk: Option[SingleTlk], classes2da: TwoDA): seq[Creature] =
+  let
+    facGffRoot = "repute".getGff("fac", module, rm)
+    facNames = newTable[int, string]()
+    facParents = newTable[string, string]()
+  for fac in facGffRoot["FactionList", GffList]:
+    let name = fac["FactionName", GffCExoString]
+    facNames[fac.id] = name
+    facParents[name] = facNames.getOrDefault(fac["FactionParentID", GffDword].int, name)
+  for li in list:
+    if not li.hasField("RESREF", GffResRef): continue
+    let
+      faction = li["FACTION", GffCExoString]
+      resref = $li["RESREF", GffResRef]
+      name = if li.hasField("NAME", GffCExoString): li["NAME", GffCExoString] else: li["STRREF", GffDword].tlkText(dlg, tlk)
+      utc = resref.getGff("utc", module, rm)
+      classes = utc["ClassList", GffList].classes(classes2da, dlg, tlk)
+    result &= Creature(
+      name: name,
+      resref: resref,
+      tag: utc["Tag", GffCExoString],
+      cr: li["CR", GffFloat].toInt,
+      hp: utc["MaxHitPoints", GffShort],
+      class1: classes.class1,
+      class1Level: classes.level1,
+      class2: classes.class2,
+      class2Level: classes.level2,
+      class3: classes.class3,
+      class3Level: classes.level3,
+      level: classes.level1 + classes.level2 + classes.level3,
+      faction: faction,
+      parentFaction: facParents[faction]
+    )

@@ -1,4 +1,4 @@
-import os, sequtils, streams, strutils, tables
+import os, sequtils, streams, strutils
 import neverwinter/[erf, gff, key, resfile, resman, resmemfile, tlk, twoda]
 import creature, db, helper
 
@@ -63,12 +63,6 @@ if cTlkName != "":
     echo "Custom tlk file required by module not found: " & cTlkName & ".tlk"
     quit(QuitFailure)
 
-proc tlkText(strref: StrRef): string =
-  tlkText(strref, dlg, cTlk)
-
-proc tlkText(strref: string): string =
-  tlkText(strref.parseInt.StrRef)
-
 for hak in ifo["Mod_HakList", GffList]:
   let hakName = hak["Mod_Hak", GffCExoString] & ".hak"
   let hak = dataFiles.findIt it.endsWith(hakName)
@@ -93,41 +87,6 @@ else:
 proc getGff(resref, restype: string): GffRoot =
   getGff(resref, restype, module, rm)
 
-proc creaturelist(list: GffList): seq[Creature] =
-  let
-    facGffRoot = "repute".getGff("fac")
-    facNames = newTable[int, string]()
-    facParents = newTable[string, string]()
-  for fac in facGffRoot["FactionList", GffList]:
-    let name = fac["FactionName", GffCExoString]
-    facNames[fac.id] = name
-    facParents[name] = facNames.getOrDefault(fac["FactionParentID", GffDword].int, name)
-  for li in list:
-    if not li.hasField("RESREF", GffResRef): continue
-    let
-      faction = li["FACTION", GffCExoString]
-      resref = $li["RESREF", GffResRef]
-      name = if li.hasField("NAME", GffCExoString): li["NAME", GffCExoString] else: li["STRREF", GffDword].tlkText
-      utc = resref.getGff("utc")
-      classes = utc["ClassList", GffList].classes(classes2da, dlg, cTlk)
-    result &= Creature(
-      name: name,
-      resref: resref,
-      tag: utc["Tag", GffCExoString],
-      cr: li["CR", GffFloat].toInt,
-      hp: utc["MaxHitPoints", GffShort],
-      class1: classes.class1,
-      class1Level: classes.level1,
-      class2: classes.class2,
-      class2Level: classes.level2,
-      class3: classes.class3,
-      class3Level: classes.level3,
-      level: classes.level1 + classes.level2 + classes.level3,
-      faction: faction,
-      parentFaction: facParents[faction]
-    )
-    # todo: Race, Alignment
-
 for palcus in palcusNames:
   echo palcus
   let
@@ -135,7 +94,7 @@ for palcus in palcusNames:
     list = itpGffRoot["MAIN", GffList].flatten
   case palcus
   of "creaturepalcus":
-    let creatures = list.creatureList
+    let creatures = list.creatureList(module, rm, dlg, cTlk, classes2da)
     echo "Entries: " & $creatures.len
     let dbfilename = palcus & ".sqlite3"
     echo "Writing sqlite db file: " & dbfilename
