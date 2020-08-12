@@ -29,23 +29,16 @@ let
   ]
   rm = newResMan() # container added last to resman will be queried first
 
-var keys, bifs, haks, tlks: seq[string]
+var dataFiles = newSeq[string]()
 for dir in dataDirs:
   if not dir.dirExists:
     echo "Directory not found: " & dir
     quit(QuitFailure)
   for file in dir.joinPath("*").walkFiles:
-    case file.splitFile.ext
-    of ".key":
-      keys &= file
-    of ".bif":
-      bifs &= file
-    of ".hak":
-      haks &= file
-    of ".tlk":
-      tlks &= file
+    if file.splitFile.ext in [".bif", ".hak", ".key", ".tlk"]:
+      dataFiles &= file
 
-let mTlkName = tlks.findIt it.endsWith("dialog.tlk")
+let mTlkName = dataFiles.findIt it.endsWith("dialog.tlk")
 if mTlkName.isSome:
   echo "Adding dialog.tlk: " & mTlkName.get
   rm.add(mTlkName.get.newResFile)
@@ -54,10 +47,10 @@ else:
   quit(QuitFailure)
 let mTlk = rm[newResRef("dialog", "tlk".getResType)].get.readAll.newStringStream.readSingleTlk
 
-for key in keys:
+for key in dataFiles.filterIt it.endsWith(".key"):
   echo "Adding key: " & key
   let keytable = key.openFileStream.readKeyTable(key, proc (fn: string): Stream =
-    let bif = bifs.findIt it.endsWith(fn)
+    let bif = dataFiles.findIt it.endsWith(fn)
     if bif.isSome:
       bif.get.openFileStream
     else:
@@ -71,7 +64,7 @@ let ifo = module[newResRef("module", "ifo".getResType)].get.readAll.newStringStr
 let cTlkName = ifo["Mod_CustomTlk", GffCExoString]
 var cTlk: Option[SingleTlk]
 if cTlkName != "":
-  let tlk = tlks.findIt it.endsWith(cTlkName & ".tlk")
+  let tlk = dataFiles.findIt it.endsWith(cTlkName & ".tlk")
   if tlk.isSome:
     echo "Adding custom tlk: " & cTlkName & ".tlk"
     cTlk = some tlk.get.openFileStream.readSingleTlk
@@ -94,7 +87,7 @@ proc tlkText(strref: string): string =
 
 for hak in ifo["Mod_HakList", GffList]:
   let hakName = hak["Mod_Hak", GffCExoString] & ".hak"
-  let hak = haks.findIt it.endsWith(hakName)
+  let hak = dataFiles.findIt it.endsWith(hakName)
   if hak.isSome:
     echo "Hak: " & hakName
     let hakErf = hak.get.getErf("HAK ")
