@@ -45,13 +45,6 @@ for dir in dataDirs:
     of ".tlk":
       tlks &= file
 
-template findIt(s, pred: untyped): untyped =
-  var result: Option[type(s[0])]
-  for it {.inject.} in s.items:
-    if result.isNone and pred:
-      result = some it
-  result
-
 let mTlkName = tlks.findIt it.endsWith("dialog.tlk")
 if mTlkName.isSome:
   echo "Adding dialog.tlk: " & mTlkName.get

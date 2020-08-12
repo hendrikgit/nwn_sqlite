@@ -1,6 +1,13 @@
 import streams, strutils
 import neverwinter/erf
 
+template findIt*(s, pred: untyped): untyped =
+  var result: Option[type(s[0])]
+  for it {.inject.} in s.items:
+    if result.isNone and pred:
+      result = some it
+  result
+
 proc getErf*(file, erfType: string): Erf =
   try:
     result = file.openFileStream.readErf
