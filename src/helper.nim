@@ -1,4 +1,4 @@
-import streams, strutils
+import os, streams, strutils
 import neverwinter/erf
 
 template findIt*(s, pred: untyped): untyped =
@@ -7,6 +7,15 @@ template findIt*(s, pred: untyped): untyped =
     if result.isNone and pred:
       result = some it
   result
+
+proc getDataFiles*(dataDirs: seq[string]): seq[string] =
+  for dir in dataDirs:
+    if not dir.dirExists:
+      echo "Directory not found: " & dir
+      quit(QuitFailure)
+    for file in dir.joinPath("*").walkFiles:
+      if file.splitFile.ext in [".bif", ".hak", ".key", ".tlk"]:
+        result &= file
 
 proc getErf*(file, erfType: string): Erf =
   try:

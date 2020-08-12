@@ -21,22 +21,13 @@ if not paramStr(1).fileExists:
 
 let
   module = paramStr(1).getErf("MOD ")
-  dataDirs = commandLineParams()[1 .. ^1]
+  dataFiles = commandLineParams()[1 .. ^1].getDataFiles
   palcusNames = [
     "creaturepalcus",
     #"itempalcus",
     #"placeablepalcus",
   ]
   rm = newResMan() # container added last to resman will be queried first
-
-var dataFiles = newSeq[string]()
-for dir in dataDirs:
-  if not dir.dirExists:
-    echo "Directory not found: " & dir
-    quit(QuitFailure)
-  for file in dir.joinPath("*").walkFiles:
-    if file.splitFile.ext in [".bif", ".hak", ".key", ".tlk"]:
-      dataFiles &= file
 
 let mTlkName = dataFiles.findIt it.endsWith("dialog.tlk")
 if mTlkName.isSome:
