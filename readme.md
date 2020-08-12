@@ -5,6 +5,9 @@ This program is written in [Nim](https://nim-lang.org/) and uses the excellent [
 
 ![creaturepalcus.sqlite3 database view in gui](screenshots/creaturepalcus.png)
 
+## Download binaries
+Binaries are available for download on the [releases](https://github.com/hendrikgit/nwn_palcus/releases/latest) page.
+
 ## What exactly does it do?
 It reads the information from a Neverwinter module file contained in the *creaturepalcus.itp*. Some additional information about factions (*repute.fac*), so that the resulting table can be filtered by Hostile, Commoner and so on. More details for each creature are added from their *\*.utc* files, like hitpoints, classes and levels.
 
