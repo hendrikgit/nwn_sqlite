@@ -62,3 +62,6 @@ proc tlkText*(strref: StrRef, dlg: SingleTlk, tlk: Option[SingleTlk]): string =
     let entry = tlk.get[strref - 0x01_000_000]
     if entry.isSome:
       return entry.get.text
+
+proc tlkText*(strref: string, dlg: SingleTlk, tlk: Option[SingleTlk]): string =
+  tlkText(strref.parseInt.StrRef , dlg, tlk)

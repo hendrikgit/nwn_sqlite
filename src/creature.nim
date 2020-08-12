@@ -14,19 +14,20 @@ type
     class3*: string
     class3Level*: int
     faction*, parentFaction*: string
+    race*: string
 
   Classes* = tuple
     class1, class2, class3: string
     level1, level2, level3: int
 
 proc classes*(classList: GffList, classes2da: TwoDA, dlg: SingleTlk, tlk: Option[SingleTlk]): Classes =
-  result.class1 = classes2da[classList[0]["Class", GffInt], "Name"].get.parseInt.StrRef.tlkText(dlg, tlk)
+  result.class1 = classes2da[classList[0]["Class", GffInt], "Name"].get.tlkText(dlg, tlk)
   result.level1 = classList[0]["ClassLevel", GffShort]
   if classList.len >= 2:
-    result.class2 = classes2da[classList[1]["Class", GffInt], "Name"].get.parseInt.StrRef.tlkText(dlg, tlk)
+    result.class2 = classes2da[classList[1]["Class", GffInt], "Name"].get.tlkText(dlg, tlk)
     result.level2 = classList[1]["ClassLevel", GffShort]
   if classList.len == 3:
-    result.class3 = classes2da[classList[2]["Class", GffInt], "Name"].get.parseInt.StrRef.tlkText(dlg, tlk)
+    result.class3 = classes2da[classList[2]["Class", GffInt], "Name"].get.tlkText(dlg, tlk)
     result.level3 = classList[2]["ClassLevel", GffShort]
 
 proc parentFactionTable(repute: GffRoot): Table[string, string] =
@@ -37,8 +38,10 @@ proc parentFactionTable(repute: GffRoot): Table[string, string] =
     result[name] = names.getOrDefault(fac["FactionParentID", GffDword].int, name)
 
 proc creatureList*(list: GffList, module: Erf, rm: ResMan, dlg: SingleTlk, tlk: Option[SingleTlk]): seq[Creature] =
-  let facParents = getGffRoot("repute", "fac", module, rm).parentFactionTable
-  let classes2da = get2da("classes", rm)
+  let
+    facParents = getGffRoot("repute", "fac", module, rm).parentFactionTable
+    classes2da = get2da("classes", rm)
+    racialtypes = get2da("racialtypes", rm)
   for li in list:
     if not li.hasField("RESREF", GffResRef): continue
     let
@@ -61,5 +64,6 @@ proc creatureList*(list: GffList, module: Erf, rm: ResMan, dlg: SingleTlk, tlk: 
       class3Level: classes.level3,
       level: classes.level1 + classes.level2 + classes.level3,
       faction: faction,
-      parentFaction: facParents[faction]
+      parentFaction: facParents[faction],
+      race: racialtypes[utc["Race", GffByte], "Name"].get.tlkText(dlg, tlk)
     )
