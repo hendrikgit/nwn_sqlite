@@ -1,6 +1,6 @@
 import os, sequtils, streams, strutils, tables
 import neverwinter/[erf, gff, key, resfile, resman, resmemfile, tlk, twoda]
-import db
+import db, helper
 
 if paramCount() < 2:
   echo """
@@ -13,16 +13,6 @@ and all files the module requires are in the directories you
 provided as parameters.
 """
   quit(QuitFailure)
-
-proc getErf(file, erfType: string): Erf =
-  try:
-    result = file.openFileStream.readErf
-  except:
-    echo "Could not read file. Is it a valid ERF/" & erfType.strip & " file?"
-    quit(QuitFailure)
-  if result.fileType != erfType:
-    echo "Not a " & erfType & " file: " & result.fileType
-    quit(QuitFailure)
 
 echo "Module: " & paramStr(1)
 if not paramStr(1).fileExists:
