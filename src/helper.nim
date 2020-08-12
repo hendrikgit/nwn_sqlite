@@ -1,5 +1,5 @@
-import os, options, streams, strutils
-import neverwinter/[erf, tlk]
+import os, options, sequtils, streams, strutils
+import neverwinter/[erf, gff, tlk]
 
 template findIt*(s, pred: untyped): untyped =
   var result: Option[type(s[0])]
@@ -7,6 +7,13 @@ template findIt*(s, pred: untyped): untyped =
     if result.isNone and pred:
       result = some it
   result
+
+proc flatten*(list: GffList): GffList =
+  for li in list:
+    if li.hasField("LIST", GffList):
+      result.insert li["LIST", GffList].flatten
+    else:
+      result &= li
 
 proc getDataFiles*(dataDirs: seq[string]): seq[string] =
   for dir in dataDirs:

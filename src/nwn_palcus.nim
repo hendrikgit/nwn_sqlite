@@ -103,13 +103,6 @@ type
     class3Level: int
     faction, parentFaction: string
 
-proc flatten(list: GffList): GffList =
-  for li in list:
-    if li.hasField("LIST", GffList):
-      result.insert li["LIST", GffList].flatten
-    else:
-      result &= li
-
 proc getGff(resref, restype: string): GffRoot =
   let resref = newResRef(resref, restype.getResType)
   # get from module first, then from resman
