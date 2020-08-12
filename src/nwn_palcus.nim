@@ -1,6 +1,6 @@
 import os, sequtils, streams, strutils, tables
 import neverwinter/[erf, gff, key, resfile, resman, resmemfile, tlk, twoda]
-import db, helper
+import creature, db, helper
 
 if paramCount() < 2:
   echo """
@@ -89,19 +89,6 @@ let classes2da = if rm.contains(newResRef("classes", "2da".getResType)):
 else:
   echo "classes.2da not found"
   quit(QuitFailure)
-
-type
-  Creature = object
-    name, resref, tag: string
-    cr, hp: int
-    level: int
-    class1: string
-    class1Level: int
-    class2: string
-    class2Level: int
-    class3: string
-    class3Level: int
-    faction, parentFaction: string
 
 proc getGff(resref, restype: string): GffRoot =
   getGff(resref, restype, module, rm)
