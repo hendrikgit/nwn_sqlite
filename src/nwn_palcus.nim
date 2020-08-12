@@ -104,17 +104,7 @@ type
     faction, parentFaction: string
 
 proc getGff(resref, restype: string): GffRoot =
-  let resref = newResRef(resref, restype.getResType)
-  # get from module first, then from resman
-  var gffContent = ""
-  if module[resref].isSome:
-    gffContent = module[resref].get.readAll
-  elif rm[resref].isSome:
-    gffContent = rm[resref].get.readAll
-  else:
-    echo "Error: GFF " & $resref & " not found."
-    quit(QuitFailure)
-  gffContent.newStringStream.readGffRoot
+  getGff(resref, restype, module, rm)
 
 proc classes(classList: GffList): tuple[class1, class2, class3: string, level1, level2, level3: int] =
   result.class1 = classes2da[classList[0]["Class", GffInt], "Name"].get.tlkText

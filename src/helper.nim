@@ -1,5 +1,5 @@
 import os, options, sequtils, streams, strutils
-import neverwinter/[erf, gff, tlk]
+import neverwinter/[erf, gff, resman, tlk]
 
 template findIt*(s, pred: untyped): untyped =
   var result: Option[type(s[0])]
@@ -33,6 +33,19 @@ proc getErf*(file, erfType: string): Erf =
   if result.fileType != erfType:
     echo "Not a " & erfType & " file: " & result.fileType
     quit(QuitFailure)
+
+proc getGff*(resref, restype: string, module: Erf, rm: ResMan): GffRoot =
+  let resref = newResRef(resref, restype.getResType)
+  # get from module first, then from resman
+  var gffContent = ""
+  if module[resref].isSome:
+    gffContent = module[resref].get.readAll
+  elif rm[resref].isSome:
+    gffContent = rm[resref].get.readAll
+  else:
+    echo "Error: GFF " & $resref & " not found."
+    quit(QuitFailure)
+  gffContent.newStringStream.readGffRoot
 
 proc tlkText*(strref: StrRef, dlg: SingleTlk, tlk: Option[SingleTlk]): string =
   if strref < 0x01_000_000:
