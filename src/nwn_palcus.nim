@@ -29,14 +29,14 @@ let
   ]
   rm = newResMan() # container added last to resman will be queried first
 
-let mTlkName = dataFiles.findIt it.endsWith("dialog.tlk")
-if mTlkName.isSome:
-  echo "Adding dialog.tlk: " & mTlkName.get
-  rm.add(mTlkName.get.newResFile)
+let dlgPath = dataFiles.findIt it.endsWith("dialog.tlk")
+if dlgPath.isSome:
+  echo "Adding dialog.tlk: " & dlgPath.get
+  rm.add(dlgPath.get.newResFile)
 else:
   echo "dialog.tlk not found"
   quit(QuitFailure)
-let mTlk = rm[newResRef("dialog", "tlk".getResType)].get.readAll.newStringStream.readSingleTlk
+let dlg = rm[newResRef("dialog", "tlk".getResType)].get.readAll.newStringStream.readSingleTlk
 
 for key in dataFiles.filterIt it.endsWith(".key"):
   echo "Adding key: " & key
@@ -64,7 +64,7 @@ if cTlkName != "":
     quit(QuitFailure)
 
 proc tlkText(strref: StrRef): string =
-  tlkText(strref, mtlk, cTlk)
+  tlkText(strref, dlg, cTlk)
 
 proc tlkText(strref: string): string =
   tlkText(strref.parseInt.StrRef)
