@@ -16,6 +16,7 @@ proc writeDb*[T](s: seq[T], filename, tablename: string) =
       cols &= (k, "text")
     else:
       echo "Error: Type not implemented."
+      quit(QuitFailure)
   let db = open(filename, "", "", "")
   db.exec(sql("drop table if exists " & tablename))
   createTable(db, tablename, cols)
