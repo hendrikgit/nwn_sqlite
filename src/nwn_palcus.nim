@@ -93,16 +93,6 @@ else:
 proc getGff(resref, restype: string): GffRoot =
   getGff(resref, restype, module, rm)
 
-proc classes(classList: GffList): tuple[class1, class2, class3: string, level1, level2, level3: int] =
-  result.class1 = classes2da[classList[0]["Class", GffInt], "Name"].get.tlkText
-  result.level1 = classList[0]["ClassLevel", GffShort]
-  if classList.len >= 2:
-    result.class2 = classes2da[classList[1]["Class", GffInt], "Name"].get.tlkText
-    result.level2 = classList[1]["ClassLevel", GffShort]
-  if classList.len == 3:
-    result.class3 = classes2da[classList[2]["Class", GffInt], "Name"].get.tlkText
-    result.level3 = classList[2]["ClassLevel", GffShort]
-
 proc creaturelist(list: GffList): seq[Creature] =
   let
     facGffRoot = "repute".getGff("fac")
@@ -119,20 +109,20 @@ proc creaturelist(list: GffList): seq[Creature] =
       resref = $li["RESREF", GffResRef]
       name = if li.hasField("NAME", GffCExoString): li["NAME", GffCExoString] else: li["STRREF", GffDword].tlkText
       utc = resref.getGff("utc")
-      (class1, class2, class3, level1, level2, level3) = utc["ClassList", GffList].classes
+      classes = utc["ClassList", GffList].classes(classes2da, dlg, cTlk)
     result &= Creature(
       name: name,
       resref: resref,
       tag: utc["Tag", GffCExoString],
       cr: li["CR", GffFloat].toInt,
       hp: utc["MaxHitPoints", GffShort],
-      class1: class1,
-      class1Level: level1,
-      class2: class2,
-      class2Level: level2,
-      class3: class3,
-      class3Level: level3,
-      level: level1 + level2 + level3,
+      class1: classes.class1,
+      class1Level: classes.level1,
+      class2: classes.class2,
+      class2Level: classes.level2,
+      class3: classes.class3,
+      class3Level: classes.level3,
+      level: classes.level1 + classes.level2 + classes.level3,
       faction: faction,
       parentFaction: facParents[faction]
     )
