@@ -29,15 +29,15 @@ proc classes*(classList: GffList, classes2da: TwoDA, dlg: SingleTlk, tlk: Option
     result.class3 = classes2da[classList[2]["Class", GffInt], "Name"].get.parseInt.StrRef.tlkText(dlg, tlk)
     result.level3 = classList[2]["ClassLevel", GffShort]
 
-proc creatureList*(list: GffList, module: Erf, rm: ResMan, dlg: SingleTlk, tlk: Option[SingleTlk], classes2da: TwoDA): seq[Creature] =
-  let
-    facGffRoot = "repute".getGff("fac", module, rm)
-    facNames = newTable[int, string]()
-    facParents = newTable[string, string]()
-  for fac in facGffRoot["FactionList", GffList]:
+proc parentFactionTable(repute: GffRoot): Table[string, string] =
+  let names = newTable[int, string]()
+  for fac in repute["FactionList", GffList]:
     let name = fac["FactionName", GffCExoString]
-    facNames[fac.id] = name
-    facParents[name] = facNames.getOrDefault(fac["FactionParentID", GffDword].int, name)
+    names[fac.id] = name
+    result[name] = names.getOrDefault(fac["FactionParentID", GffDword].int, name)
+
+proc creatureList*(list: GffList, module: Erf, rm: ResMan, dlg: SingleTlk, tlk: Option[SingleTlk], classes2da: TwoDA): seq[Creature] =
+  let facParents = "repute".getGff("fac", module, rm).parentFactionTable
   for li in list:
     if not li.hasField("RESREF", GffResRef): continue
     let
