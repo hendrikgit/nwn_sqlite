@@ -64,14 +64,7 @@ if cTlkName != "":
     quit(QuitFailure)
 
 proc tlkText(strref: StrRef): string =
-  if strref < 0x01_000_000:
-    let tlk = mTlk[strref]
-    if tlk.isSome:
-      return tlk.get.text
-  elif cTlk.isSome:
-    let tlk = cTlk.get[strref - 0x01_000_000]
-    if tlk.isSome:
-      return tlk.get.text
+  tlkText(strref, mtlk, cTlk)
 
 proc tlkText(strref: string): string =
   tlkText(strref.parseInt.StrRef)

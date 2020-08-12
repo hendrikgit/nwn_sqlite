@@ -1,5 +1,5 @@
-import os, streams, strutils
-import neverwinter/erf
+import os, options, streams, strutils
+import neverwinter/[erf, tlk]
 
 template findIt*(s, pred: untyped): untyped =
   var result: Option[type(s[0])]
@@ -26,3 +26,12 @@ proc getErf*(file, erfType: string): Erf =
   if result.fileType != erfType:
     echo "Not a " & erfType & " file: " & result.fileType
     quit(QuitFailure)
+
+proc tlkText*(strref: StrRef, dlg: SingleTlk, tlk: Option[SingleTlk]): string =
+  if strref < 0x01_000_000:
+    if dlg[strref].isSome:
+      return dlg[strref].get.text
+  elif tlk.isSome:
+    let entry = tlk.get[strref - 0x01_000_000]
+    if entry.isSome:
+      return entry.get.text
