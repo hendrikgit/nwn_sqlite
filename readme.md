@@ -5,6 +5,8 @@ This program is written in [Nim](https://nim-lang.org/) and uses the excellent [
 
 ![creaturepalcus.sqlite3 database view in gui](screenshots/creaturepalcus.png)
 
+For [table schemas see below](#table-schemas).
+
 ## Download binaries
 Binaries are available for download on the [releases](https://github.com/hendrikgit/nwn_palcus/releases/latest) page.
 
@@ -45,3 +47,26 @@ On my computer with my module file it took less than 200ms to create the sqlite3
 * A sqlite3 library (like libsqlite3 on Debian) needs to be installed on your system (or see the last point)
 * Run `nimble build -d:release`
 * For creating a static binary use the nimble tasks defined in [nwn_palcus.nimble](nwn_palcus.nimble). Run `nimble musl`. This assumes you are on Linux.
+
+## Table schemas
+### creaturepalcus.sqlite3
+Table: creaturepalcus
+```
+cid         name           type
+----------  -------------  ----------
+0           id             integer     (primary key)
+1           name           text
+2           resref         text
+3           tag            text
+4           cr             integer
+5           hp             integer
+6           level          integer
+7           class1         text
+8           class1Level    integer
+9           class2         text
+10          class2Level    integer
+11          class3         text
+12          class3Level    integer
+13          faction        text
+14          parentFaction  text
+```
