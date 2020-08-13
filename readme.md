@@ -50,7 +50,9 @@ On my computer with my module file it takes less than a second to create the sql
 * For creating a static binary use the nimble tasks defined in [mod2sqlite.nimble](mod2sqlite.nimble). Run `nimble musl`. This assumes you are on Linux.
 
 ## Table schemas
-Schemas for the tables in the sqlite3 database file that will be written.
+Schemas for the tables in the sqlite3 database file that will be written.  
+To generate schema output like what is seen below run `sqlite3 dbname.sqlite3 < schemas.sqlite | sed -r 's/.{9}$//'`.  
+[schemas.sqlite](schemas.sqlite) contains the commands to generate the table info.
 
 ### creatures
 ```
