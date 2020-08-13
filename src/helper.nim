@@ -1,4 +1,4 @@
-import os, options, sequtils, streams, strutils
+import os, options, sequtils, streams, strutils, tables
 import neverwinter/[erf, gff, resman, tlk, twoda]
 
 template findIt*(s, pred: untyped): untyped =
@@ -65,3 +65,13 @@ proc tlkText*(strref: StrRef, dlg: SingleTlk, tlk: Option[SingleTlk]): string =
 
 proc tlkText*(strref: string, dlg: SingleTlk, tlk: Option[SingleTlk]): string =
   tlkText(strref.parseInt.StrRef , dlg, tlk)
+
+proc getStr*(locstr: GffCExoLocString, dlg: SingleTlk, tlk: Option[SingleTlk]): string =
+  if locstr.strRef != BadStrRef:
+    return locstr.strRef.tlkText(dlg, tlk)
+  if locstr.entries.hasKey(dlg.language.ord):
+    return locstr.entries[dlg.language.ord]
+  if locstr.entries.hasKey(Language.English.ord):
+    return locstr.entries[Language.English.ord]
+  for value in locstr.entries.values:
+    if value != "": return value
