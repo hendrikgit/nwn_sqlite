@@ -21,7 +21,7 @@ jobs:
           key: build-${{ runner.os }}-nim-${{ env.NIMVER }}
           path: |
             nim
-            .nimble
+            ~/.nimble
             sqlite3.*
             winsqlite3.*
 
