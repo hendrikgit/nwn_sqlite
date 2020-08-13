@@ -8,12 +8,12 @@ type
     cr*, hp*: int
     level*: int
     class1*: string
-    class1Level*: int
+    class1_level*: int
     class2*: string
-    class2Level*: int
+    class2_level*: int
     class3*: string
-    class3Level*: int
-    faction*, parentFaction*: string
+    class3_level*: int
+    faction*, parent_faction*: string
     race*, gender*: string
 
   Classes* = tuple
