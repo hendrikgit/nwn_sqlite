@@ -6,7 +6,7 @@ proc createTable(db: DbConn, tablename: string, cols: seq[tuple[name, coltype: s
     cols.mapIt(it.name & " " & it.coltype).join(",") & ")"
   db.exec(create.sql)
 
-proc writeDb*[T](s: seq[T], filename, tablename: string) =
+proc writeTable*[T](s: seq[T], filename, tablename: string) =
   if s.len == 0: return
   var cols = newSeq[tuple[name, coltype: string]]()
   for k, v in s[0].fieldPairs:

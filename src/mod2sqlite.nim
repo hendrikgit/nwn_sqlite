@@ -22,11 +22,6 @@ if not paramStr(1).fileExists:
 let
   module = paramStr(1).getErf("MOD ")
   dataFiles = commandLineParams()[1 .. ^1].getDataFiles
-  palcusNames = [
-    "creaturepalcus",
-    #"itempalcus",
-    #"placeablepalcus",
-  ]
   rm = newResMan() # container added last to resman will be queried first
 
 let dlgPath = dataFiles.findIt it.endsWith("dialog.tlk")
@@ -81,15 +76,13 @@ for hak in ifo["Mod_HakList", GffList]:
 proc getGffRoot(resref, restype: string): GffRoot =
   getGffRoot(resref, restype, module, rm)
 
-for palcus in palcusNames:
-  echo palcus
-  let
-    itpGffRoot = palcus.getGffRoot("itp")
-    list = itpGffRoot["MAIN", GffList].flatten
-  case palcus
-  of "creaturepalcus":
-    let creatures = list.creatureList(module, rm, dlg, cTlk)
-    echo "Entries: " & $creatures.len
-    let dbfilename = palcus & ".sqlite3"
-    echo "Writing sqlite db file: " & dbfilename
-    creatures.writeDb(dbfilename, palcus)
+let dbName = paramStr(1).splitFile.name & ".sqlite3"
+echo "\nDatabase file: " & dbName
+
+echo "\nTable: creatures"
+let
+  itpGffRoot = getGffRoot("creaturepalcus", "itp")
+  list = itpGffRoot["MAIN", GffList].flatten
+  creatures = list.creatureList(module, rm, dlg, cTlk)
+echo "Entries: " & $creatures.len
+creatures.writeTable(dbName, "creatures")
