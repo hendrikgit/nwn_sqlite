@@ -54,23 +54,33 @@ Schemas for the tables in the sqlite3 database file that will be written.
 
 ### creatures
 ```
-cid         name           type
-----------  -------------  ----------
-0           id             integer     (primary key)
-1           name           text
-2           resref         text
-3           tag            text
-4           cr             integer
-5           hp             integer
-6           level          integer
-7           class1         text
-8           class1Level    integer
-9           class2         text
-10          class2Level    integer
-11          class3         text
-12          class3Level    integer
-13          faction        text
-14          parentFaction  text
-15          race           text
-16          gender         text
+cid  name                      type   
+---  ------------------------  -------
+0    id                        integer
+1    name                      text   
+2    resref                    text   
+3    tag                       text   
+4    cr                        integer
+5    hp                        integer
+6    level                     integer
+7    class1                    text   
+8    class1_id                 integer
+9    class1_level              integer
+10   class2                    text   
+11   class2_id                 integer
+12   class2_level              integer
+13   class3                    text   
+14   class3_id                 integer
+15   class3_level              integer
+16   faction                   text   
+17   faction_id                integer
+18   parent_faction            text   
+19   parent_faction_id         integer
+20   race                      text   
+21   race_id                   integer
+22   gender                    text   
+23   gender_id                 integer
+24   alignment                 text   
+25   alignment_lawful_chaotic  integer
+26   alignment_good_evil       integer
 ```
