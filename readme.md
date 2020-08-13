@@ -1,4 +1,4 @@
-# nwn_palcus
+# mod2sqlite
 Extracts information from a [Neverwinter Nights](https://www.beamdog.com/games/neverwinter-nights-enhanced/) module and saves it to a [sqlite3](https://www.sqlite.org/index.html) file. sqlite databases can be read and queried via nwscript beginning with version 8193.14.
 
 This program is written in [Nim](https://nim-lang.org/) and uses the excellent [neverwinter.nim](https://github.com/niv/neverwinter.nim) library to do all the work.
@@ -8,49 +8,51 @@ This program is written in [Nim](https://nim-lang.org/) and uses the excellent [
 For [table schemas see below](#table-schemas).
 
 ## Download binaries
-Binaries are available for download on the [releases](https://github.com/hendrikgit/nwn_palcus/releases/latest) page.
+Binaries are available for download on the [releases](https://github.com/hendrikgit/mod2sqlite/releases/latest) page.
 
 ## What exactly does it do?
-It reads the information from a Neverwinter module file contained in the *creaturepalcus.itp*. Some additional information about factions (*repute.fac*), so that the resulting table can be filtered by Hostile, Commoner and so on. More details for each creature are added from their *\*.utc* files, like hitpoints, classes and levels.
+It reads the information from a Neverwinter module file contained in `module.ifo`, `*palcus.itp` and various GFF files like `.utc`, `.utp` and so on. Names are looked up by reading the relevant `.2da` files and looking up strrefs in `dialog.tlk` or a possible custom tlk. The paths to these additional resources have to be provided as command line arguments.
 
-That data is then written to a sqlite3 database file.
-
-The addition of other tables for *itempalcus* and *placeablepalcus* is planned.
+That data is then written to a sqlite3 database file named as the module file but with the extension of .sqlite3.
 
 ## Usage
-nwn_palcus expects at least 2 command line arguments. The first one always has to be a module `.mod` file.  
-All the other arguments will be treated as directory paths where nwn_palcus looks for `.key` (and `.bif` referenced in that key), `.tlk` and `.hak` files.
+mod2sqlite expects at least 2 command line arguments. The first one always has to be a module `.mod` file.  
+All the other arguments will be treated as directory paths where mod2sqlite looks for `.key` (and `.bif` referenced in that key), `.tlk` and `.hak` files.
 
-At minimum a path to a `dialog.tlk` and `classes.2da` file is needed (in additon to the module, as first argument). The .2da can be in a hak or in a .bif referenced by a .key.
+At minimum a path to `dialog.tlk` and `classes.2da`, `racialtypes.2da` is needed (in additon to the module, as first argument). The .2da files can be in a hak or in a .bif referenced by a .key. They could also just be in a folder directly.
 
 A good start can be to run the program and keep adding directories, there should be (hopefully) helpful error messages.
 
-A database file with the name `creaturepalcus.sqlite3` will be written. **Warning: If that file already exists and is a sqlite database the existing table called `creaturepalcus` in there will be dropped.**
+A database file with the *name of the module file and the extension `.sqlite3`* will be written.  
+**Warning: If that file already exists and is a sqlite database the existing tables in it will be dropped (and recreated and filled with new data).**
 
 Example program call on Linux:
 ```
-./nwn_palcus ~/sfee/server/modules/SoulForge.mod ~/Beamdog\ Library/00785/lang/en/data/ ~/sfee/server/tlk/ ~/sfee/server/hak
+./mod2sqlite ~/sfee/server/modules/SoulForge.mod ~/Beamdog\ Library/00785/lang/en/data/ ~/Beamdog\ Library/00785/data/ ~/sfee/server/tlk/ ~/sfee/server/hak
 ```
 
 ## Language
-A dialog.tlk file of any language should work. That will lead to class names in the chosen language but table headers will not change.
+A dialog.tlk file of any language should work. The language of the provided dialog.tlk will also be used when looking up localized strings. If a localized string has no entry for the language the dialog.tlk is in, then next english will be tried and lastly the first language with a value
+
+Table column names will not change.
 
 ## Why do I need this?
-Having the sqlite table will allow you to query information comfortably and quickly via nwscript. Perhaps to select the most fitting creatures to spawn for an encounter. The sqlite database can be used by many other tools, too, like the graphical database tool seen in the screenshot above for a great overview.  
+Having this sqlite table will allow you to query information comfortably and quickly via nwscript. Perhaps to select the most fitting creatures to spawn for an encounter. The sqlite database can be used by many other tools, too, like the graphical database tool seen in the screenshot above for a great overview.  
 
 ## Speed
-On my computer with my module file it took less than 200ms to create the sqlite3 file for 1430 creatures. So to always have up to date information this tool could possibly be run on each nwserver start.
+On my computer with my module file it takes less than a second to create the sqlite3 file. This tool could possibly be run at each nwserver start to always have up to date information for the running module.
 
 ## Build
 * Install [Nim](https://nim-lang.org/)
 * Clone this repo
 * A sqlite3 library (like libsqlite3 on Debian) needs to be installed on your system (or see the last point)
 * Run `nimble build -d:release`
-* For creating a static binary use the nimble tasks defined in [nwn_palcus.nimble](nwn_palcus.nimble). Run `nimble musl`. This assumes you are on Linux.
+* For creating a static binary use the nimble tasks defined in [mod2sqlite.nimble](mod2sqlite.nimble). Run `nimble musl`. This assumes you are on Linux.
 
 ## Table schemas
-### creaturepalcus.sqlite3
-Table: creaturepalcus
+Schemas for the tables in the sqlite3 database file that will be written.
+
+### creatures
 ```
 cid         name           type
 ----------  -------------  ----------
@@ -69,4 +71,5 @@ cid         name           type
 12          class3Level    integer
 13          faction        text
 14          parentFaction  text
+15          race           text
 ```
