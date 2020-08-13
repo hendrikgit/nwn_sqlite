@@ -13,35 +13,53 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Cache nim, nimble, sqlite3
+        uses: actions/cache@v2
+        with:
+          key: build-${{runner.os}}-${{hashFiles('nim/**/nim*')}}
+          path: |
+            ~/nim
+            ~/.nimble
+            ~/sqlite3*
+            ~/winsqlite3*
+
       - name: Download and setup nim, nimble
         run: |
           mkdir nim
           cd nim
           wget https://nim-lang.org/download/nim-$NIMVER-linux_x64.tar.xz
           tar xf nim-$NIMVER-linux_x64.tar.xz
+
       - name: Install apt packages
         run: sudo apt install -y --no-install-recommends binutils musl-tools mingw-w64
+
       - name: Install nimble packages
         run: PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" nimble install -y
+
       - name: Compile for Windows
         # on Ubuntu the binary has no .exe extension for some reason
         run: |
           PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" nimble win
           mv mod2sqlite mod2sqlite.exe
           ls -l mod2sqlite*
+
       - name: Compile for Linux
         run: |
           PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" nimble musl
           ls -l mod2sqlite*
+
       - name: Pack artifacts
         run: |
           zip mod2sqlite.linux.amd64.static.zip mod2sqlite
           zip mod2sqlite.windows.amd64.static.zip mod2sqlite.exe
+
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v2
         with:
           name: mod2sqlite-linux-binary
           path: mod2sqlite.linux.amd64.static.zip
+
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v2
         with:
