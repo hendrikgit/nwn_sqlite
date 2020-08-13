@@ -30,6 +30,12 @@ proc classes*(classList: GffList, classes2da: TwoDA, dlg: SingleTlk, tlk: Option
     result.class3 = classes2da[classList[2]["Class", GffInt], "Name"].get.tlkText(dlg, tlk)
     result.level3 = classList[2]["ClassLevel", GffShort]
 
+proc name(utc: GffRoot, dlg: SingleTlk, tlk: Option[SingleTlk]): string =
+  result = utc["FirstName", GffCExoLocString].getStr(dlg, tlk)
+  let last = utc["LastName", GffCExoLocString].getStr(dlg, tlk)
+  if last != "":
+    result &= " " & last
+
 proc parentFactionTable(repute: GffRoot): Table[string, string] =
   let names = newTable[int, string]()
   for fac in repute["FactionList", GffList]:
@@ -47,8 +53,8 @@ proc creatureList*(list: GffList, module: Erf, rm: ResMan, dlg: SingleTlk, tlk: 
     let
       faction = li["FACTION", GffCExoString]
       resref = $li["RESREF", GffResRef]
-      name = if li.hasField("NAME", GffCExoString): li["NAME", GffCExoString] else: li["STRREF", GffDword].tlkText(dlg, tlk)
       utc = resref.getGffRoot("utc", module, rm)
+      name = utc.name(dlg, tlk)
       classes = utc["ClassList", GffList].classes(classes2da, dlg, tlk)
     result &= Creature(
       name: name,
