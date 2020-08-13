@@ -24,13 +24,20 @@ type
     race_id*: int
     gender*: string
     gender_id*: int
+    alignment*: string
+    alignment_lawful_chaotic*, alignment_good_evil*: int
 
-  ClassInfo* = object
+  ClassInfo = object
     name1, name2, name3: string
     id1, id2, id3: int
     level1, level2, level3: int
 
-proc toClassInfo*(classList: GffList, classes2da: TwoDA, dlg: SingleTlk, tlk: Option[SingleTlk]): ClassInfo =
+  AlignmentRange = range[0 .. 100]
+
+  Alignment = object
+    lawfulChaotic, goodEvil: AlignmentRange
+
+proc toClassInfo(classList: GffList, classes2da: TwoDA, dlg: SingleTlk, tlk: Option[SingleTlk]): ClassInfo =
   result.id1 = classList[0]["Class", GffInt]
   result.name1 = classes2da[result.id1, "Name"].get.tlkText(dlg, tlk)
   result.level1 = classList[0]["ClassLevel", GffShort]
@@ -48,6 +55,17 @@ proc name(utc: GffRoot, dlg: SingleTlk, tlk: Option[SingleTlk]): string =
   let last = utc["LastName", GffCExoLocString].getStr(dlg, tlk)
   if last != "":
     result &= " " & last
+
+proc name(a: Alignment): string =
+  let lc = case a.lawfulChaotic
+  of 70 .. 100: "L"
+  of 31 .. 69: "N"
+  of 0 .. 30: "C"
+  let ge = case a.goodEvil
+  of 70 .. 100: "G"
+  of 31 .. 69: "N"
+  of 0 .. 30: "E"
+  if lc == ge: "TN" else: lc & ge
 
 proc parentFactionTable(repute: GffRoot): Table[string, string] =
   let names = newTable[int, string]()
@@ -77,6 +95,7 @@ proc creatureList*(list: GffList, module: Erf, rm: ResMan, dlg: SingleTlk, tlk: 
       utc = resref.getGffRoot("utc", module, rm)
       name = utc.name(dlg, tlk)
       classInfo = utc["ClassList", GffList].toClassInfo(classes2da, dlg, tlk)
+      alignment = Alignment(lawfulChaotic: utc["LawfulChaotic", GffByte], goodEvil: utc["GoodEvil", GffByte])
     result &= Creature(
       name: name,
       resref: resref,
@@ -101,4 +120,7 @@ proc creatureList*(list: GffList, module: Erf, rm: ResMan, dlg: SingleTlk, tlk: 
       race_id: utc["Race", GffByte].int,
       gender: gender[utc["Gender", GffByte], "Name"].get.tlkText(dlg, tlk),
       gender_id: utc["Gender", GffByte].int,
+      alignment: alignment.name,
+      alignment_lawful_chaotic: alignment.lawfulChaotic,
+      alignment_good_evil: alignment.goodEvil,
     )
