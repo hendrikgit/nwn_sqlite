@@ -1,14 +1,14 @@
 # Package
 version       = "0.1.0"
 author        = "Hendrik Albers"
-description   = "read and convert nwn module *palcus and other info to sqlite"
+description   = "Reads data from a Neverwinter Nights module and writes it to a sqlite database"
 license       = "MIT"
 srcDir        = "src"
-bin           = @["nwn_palcus"]
+bin           = @["mod2sqlite"]
 
 # Dependencies
-requires "nim >= 1.2.6"
-requires "neverwinter >= 1.2.10"
+requires "nim == 1.2.6"
+requires "neverwinter == 1.2.10"
 
 task getsqlite3, "Download amalgamated sqlite3.c source from https://www.sqlite.org":
   const

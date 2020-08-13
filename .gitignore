@@ -1,5 +1,5 @@
-/nwn_palcus
-/nwn_palcus.exe
+/mod2sqlite
+/mod2sqlite.exe
 /sqlite3.[c|o|a]
 /sqlite3.dll
 /sqlite-amalgamation-*
