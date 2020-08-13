@@ -30,7 +30,7 @@ task sqlite3a, "Create static library archive sqlite3.a with musl":
   if not fileExists "sqlite3.c":
     echo "sqlite3.c not found. Running task getsqlite3 first."
     getsqlite3Task()
-  echo "Compiling sqlite3.a with musl"
+  echo "Creating sqlite3.a with musl and ar"
   exec "musl-gcc -O2 -c -o sqlite3.o sqlite3.c"
   exec "ar rcs sqlite3.a sqlite3.o"
 
@@ -49,17 +49,18 @@ task musl, "Build static binary with musl":
     echo "Compressing with upx"
     exec "upx --best " & file
 
-task sqlite3dll, "Create sqlite3.dll with mingw":
+task winsqlite3a, "Create static winsqlite3.a with mingw":
   if not fileExists "sqlite3.c":
     echo "sqlite3.c not found. Running task getsqlite3 first."
     getsqlite3Task()
-  echo "Compiling sqlite3.dll with mingw"
-  exec "x86_64-w64-mingw32-gcc -O2 -shared sqlite3.c -o sqlite3.dll"
+  echo "Creating winsqlite3.a with mingw and ar"
+  exec "x86_64-w64-mingw32-gcc -O2 -c -o winsqlite3.o sqlite3.c"
+  exec "ar rcs winsqlite3.a winsqlite3.o"
 
 task win, "Cross compile windows binary with mingw":
-  if not fileExists "sqlite3.dll":
-    echo "sqlite3.dll not found. Running task sqlite3dll first."
-    sqlite3dllTask()
+  if not fileExists "winsqlite3.a":
+    echo "winsqlite3.a not found. Running task winsqlite3a first."
+    winsqlite3aTask()
   echo "Building windows binary with mingw"
   let file = bin[0]
-  exec "nimble build -d:mingw -d:release --passL:-static --dynlibOverrideAll --passL:sqlite3.dll " & file
+  exec "nimble build -d:mingw -d:release --passL:-static --dynlibOverrideAll --passL:winsqlite3.a " & file
