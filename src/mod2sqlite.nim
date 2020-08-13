@@ -1,5 +1,5 @@
 import os, sequtils, streams, strutils
-import neverwinter/[erf, gff, key, resfile, resman, resmemfile, tlk, twoda]
+import neverwinter/[erf, gff, key, resfile, resman, resmemfile, tlk]
 import creature, db, helper
 
 if paramCount() < 2:

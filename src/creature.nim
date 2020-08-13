@@ -1,4 +1,4 @@
-import options, strutils, tables
+import options, tables
 import neverwinter/[erf, gff, resman, tlk, twoda]
 import helper
 
