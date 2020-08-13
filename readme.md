@@ -19,7 +19,7 @@ That data is then written to a sqlite3 database file named as the module file bu
 mod2sqlite expects at least 2 command line arguments. The first one always has to be a module `.mod` file.  
 All the other arguments will be treated as directory paths where mod2sqlite looks for `.key` (and `.bif` referenced in that key), `.tlk` and `.hak` files.
 
-At minimum a path to `dialog.tlk` and `classes.2da`, `racialtypes.2da` is needed (in additon to the module, as first argument). The .2da files can be in a hak or in a .bif referenced by a .key. They could also just be in a folder directly.
+At minimum paths to `dialog.tlk` and various .2da files are needed (in additon to the module, as first argument). The .2da files can be in a hak or in a .bif referenced by a .key. They could also just be in a folder directly.
 
 A good start can be to run the program and keep adding directories, there should be (hopefully) helpful error messages.
 
@@ -72,4 +72,5 @@ cid         name           type
 13          faction        text
 14          parentFaction  text
 15          race           text
+16          gender         text
 ```

@@ -14,7 +14,7 @@ type
     class3*: string
     class3Level*: int
     faction*, parentFaction*: string
-    race*: string
+    race*, gender*: string
 
   Classes* = tuple
     class1, class2, class3: string
@@ -48,6 +48,7 @@ proc creatureList*(list: GffList, module: Erf, rm: ResMan, dlg: SingleTlk, tlk: 
     facParents = getGffRoot("repute", "fac", module, rm).parentFactionTable
     classes2da = get2da("classes", rm)
     racialtypes = get2da("racialtypes", rm)
+    gender = get2da("gender", rm)
   for li in list:
     if not li.hasField("RESREF", GffResRef): continue
     let
@@ -71,5 +72,6 @@ proc creatureList*(list: GffList, module: Erf, rm: ResMan, dlg: SingleTlk, tlk: 
       level: classes.level1 + classes.level2 + classes.level3,
       faction: faction,
       parentFaction: facParents[faction],
-      race: racialtypes[utc["Race", GffByte], "Name"].get.tlkText(dlg, tlk)
+      race: racialtypes[utc["Race", GffByte], "Name"].get.tlkText(dlg, tlk),
+      gender: gender[utc["Gender", GffByte], "Name"].get.tlkText(dlg, tlk),
     )
