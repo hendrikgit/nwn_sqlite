@@ -2,7 +2,7 @@ import os, sequtils, streams, strutils
 import neverwinter/[gff, key, resfile, resman, tlk]
 import creature, db, helper
 
-if paramCount() == 0:
+if paramCount() == 0 or not commandLineParams().anyIt it.startsWith("-o:"):
   echo """
 Please provide one or more directories or files as parameters.
 All directories given will be searched for the following files:
@@ -10,23 +10,19 @@ All directories given will be searched for the following files:
 
 Subdirectories are ignored.
 
-If one of the parameters is a module (.mod) file then it will
-be checked that all ressources required by the module are found and
-also read. Only one module at a time is valid.
-
 A dialog.tlk and various .2da files will be needed as well,
 add the path to them (or a directory with .key, .bif) as further parameters.
 
-All .utc are read and their information will be written to the database
-file in the "creatures" table. utc in bif files are ignored!
+Use:
+  -o:dbname.sqlite3        to specify the name of the output database file.
 
-For now the database file is always called db.sqlite3.
 Existing tables will be overwritten.
 """
   quit(QuitFailure)
 
 let
-  dataFiles = commandLineParams().getDataFiles
+  dbName = commandLineParams().findIt(it.startsWith("-o:")).get[3 .. ^1]
+  dataFiles = commandLineParams().filterIt(not it.startsWith("-o:")).getDataFiles
   rm = newResMan() # container added last to resman will be queried first
 
 let dlgPath = dataFiles.findIt it.endsWith("dialog.tlk")
@@ -92,4 +88,4 @@ for container in rm.containers:
 
 echo "\nCreatures (utc) found: " & $utcs.len
 let creatures = utcs.creatureList(rm, dlg, cTlk)
-creatures.writeTable("db.sqlite3", "creatures")
+creatures.writeTable(dbName, "creatures")
