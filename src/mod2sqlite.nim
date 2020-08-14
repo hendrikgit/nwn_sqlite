@@ -53,10 +53,13 @@ if modFiles.len > 0:
     echo "Only one .mod file at a time is supported: " & modFiles.join(", ")
     quit(QuitFailure)
   echo "Adding module: " & modFiles[0]
-  let
-    module = modFiles[0].getErf("MOD ")
-    ifo = module[newResRef("module", "ifo".getResType)].get.readAll.newStringStream.readGffRoot
-    cTlkName = ifo["Mod_CustomTlk", GffCExoString]
+  let module = modFiles[0].getErf("MOD ")
+  let modRes = module[newResRef("module", "ifo".getResType)]
+  if modRes.isNone:
+    echo "Error: module.ifo not found in module. The file might be corrupt."
+    quit(QuitFailure)
+  let ifo = modRes.get.readAll.newStringStream.readGffRoot
+  let cTlkName = ifo["Mod_CustomTlk", GffCExoString]
   if cTlkName != "":
     let tlk = dataFiles.findIt it.endsWith(cTlkName & ".tlk")
     if tlk.isSome:
