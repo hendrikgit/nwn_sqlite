@@ -10,7 +10,7 @@ on:
       - src/**
 
 jobs:
-  build:
+  build-linux-win:
     runs-on: ubuntu-18.04
     env:
       NIMVER: "1.2.6"
@@ -71,3 +71,33 @@ jobs:
         with:
           name: mod2sqlite-windows-binary
           path: mod2sqlite.windows.amd64.static.zip
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cache nimble, sqlite3
+        uses: actions/cache@v2
+        id: cache
+        with:
+          key: build-${{ runner.os }}
+          path: |
+            ~/.nimble
+            sqlite3.*
+            winsqlite3.*
+
+      - name: Install nim
+        run: brew install nim
+
+      - name: Compile for macOS
+        run: nimble build -y -d:release
+
+      - name: Pack artifact
+        run: zip mod2sqlite.macos.amd64.zip mod2sqlite
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          path: mod2sqlite.macos.amd64.zip
