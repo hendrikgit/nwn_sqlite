@@ -1,6 +1,8 @@
 import os, options, sequtils, streams, strutils, tables
 import neverwinter/[erf, gff, resfile, resman, tlk, twoda]
 
+const dataFileExtensions = [".2da", ".bif", ".hak", ".key", ".mod", ".tlk", ".utc"]
+
 template findIt*(s, pred: untyped): untyped =
   var result: Option[type(s[0])]
   for it {.inject.} in s.items:
@@ -34,14 +36,18 @@ proc get2da*(name: string, rm: ResMan): TwoDA =
     echo name & ".2da not found"
     quit(QuitFailure)
 
-proc getDataFiles*(dataDirs: seq[string]): seq[string] =
-  for dir in dataDirs:
-    if not dir.dirExists:
-      echo "Directory not found: " & dir
+proc getDataFiles*(paths: seq[string]): seq[string] =
+  for path in paths:
+    if path.existsFile:
+      if path.splitFile.ext in dataFileExtensions:
+        result &= path
+    elif path.existsDir:
+      for file in path.joinPath("*").walkFiles:
+        if file.splitFile.ext in dataFileExtensions:
+          result &= file
+    else:
+      echo "Not found: " & path
       quit(QuitFailure)
-    for file in dir.joinPath("*").walkFiles:
-      if file.splitFile.ext in [".2da", ".bif", ".hak", ".key", ".tlk"]:
-        result &= file
 
 proc getErf*(file, erfType: string): Erf =
   try:
@@ -53,18 +59,16 @@ proc getErf*(file, erfType: string): Erf =
     echo "Not a " & erfType & " file: " & result.fileType
     quit(QuitFailure)
 
-proc getGffRoot*(resref, restype: string, module: Erf, rm: ResMan): GffRoot =
-  let resref = newResRef(resref, restype.getResType)
-  # get from module first, then from resman
-  var gffContent = ""
-  if module[resref].isSome:
-    gffContent = module[resref].get.readAll
-  elif rm[resref].isSome:
-    gffContent = rm[resref].get.readAll
+proc getGffRoot*(rm: ResMan, resref: ResRef): GffRoot =
+  if rm[resref].isSome:
+    let gffContent = rm[resref].get.readAll
+    gffContent.newStringStream.readGffRoot
   else:
     echo "Error: GFF " & $resref & " not found."
     quit(QuitFailure)
-  gffContent.newStringStream.readGffRoot
+
+proc getGffRoot*(rm: ResMan, resref, restype: string): GffRoot =
+  getGffRoot(rm, newResRef(resref, restype.getResType))
 
 proc tlkText*(strref: StrRef, dlg: SingleTlk, tlk: Option[SingleTlk]): string =
   if strref < 0x01_000_000:

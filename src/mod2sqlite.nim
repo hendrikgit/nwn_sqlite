@@ -1,27 +1,32 @@
 import os, sequtils, streams, strutils
-import neverwinter/[erf, gff, key, resfile, resman, resmemfile, tlk]
+import neverwinter/[gff, key, resfile, resman, tlk]
 import creature, db, helper
 
-if paramCount() < 2:
+if paramCount() == 0:
   echo """
-First parameter: A module file.
-All other paramters: Directories that will be searched for
-.key, .bif, .hak and .tlk files.
+Please provide one or more directories or files as parameters.
+All directories given will be searched for the following files:
+.2da, .bif, .hak, .key, .tlk, .utc.
 
-At least one directory is required. Please make sure a dialog.tlk
-and all files the module requires are in the directories you
-provided as parameters.
+Subdirectories are ignored.
+
+If one of the parameters is a module (.mod) file then it will
+be checked that all ressources required by the module are found and
+also read. Only one module at a time is valid.
+
+A dialog.tlk and various .2da files will be needed as well,
+add the path to them (or a directory with .key, .bif) as further parameters.
+
+All .utc are read and their information will be written to the database
+file in the "creatures" table. utc in bif files are ignored!
+
+For now the database file is always called db.sqlite3.
+Existing tables will be overwritten.
 """
   quit(QuitFailure)
 
-echo "Module: " & paramStr(1)
-if not paramStr(1).fileExists:
-  echo "Module file not found."
-  quit(QuitFailure)
-
 let
-  module = paramStr(1).getErf("MOD ")
-  dataFiles = commandLineParams()[1 .. ^1].getDataFiles
+  dataFiles = commandLineParams().getDataFiles
   rm = newResMan() # container added last to resman will be queried first
 
 let dlgPath = dataFiles.findIt it.endsWith("dialog.tlk")
@@ -45,46 +50,46 @@ for key in dataFiles.filterIt it.endsWith(".key"):
   )
   rm.add(keytable)
 
-let ifo = module[newResRef("module", "ifo".getResType)].get.readAll.newStringStream.readGffRoot
-
-let cTlkName = ifo["Mod_CustomTlk", GffCExoString]
 var cTlk: Option[SingleTlk]
-if cTlkName != "":
-  let tlk = dataFiles.findIt it.endsWith(cTlkName & ".tlk")
-  if tlk.isSome:
-    echo "Adding custom tlk: " & cTlkName & ".tlk"
-    cTlk = some tlk.get.openFileStream.readSingleTlk
-  else:
-    echo "Custom tlk file required by module not found: " & cTlkName & ".tlk"
+let modFiles = dataFiles.filterIt it.endsWith(".mod")
+if modFiles.len > 0:
+  if modFiles.len > 1:
+    echo "Only one .mod file at a time is supported: " & modFiles.join(", ")
     quit(QuitFailure)
+  echo "Adding module: " & modFiles[0]
+  let
+    module = modFiles[0].getErf("MOD ")
+    ifo = module[newResRef("module", "ifo".getResType)].get.readAll.newStringStream.readGffRoot
+    cTlkName = ifo["Mod_CustomTlk", GffCExoString]
+  if cTlkName != "":
+    let tlk = dataFiles.findIt it.endsWith(cTlkName & ".tlk")
+    if tlk.isSome:
+      echo "Adding custom tlk: " & cTlkName & ".tlk"
+      cTlk = some tlk.get.openFileStream.readSingleTlk
+    else:
+      echo "Custom tlk file required by module not found: " & cTlkName & ".tlk"
+      quit(QuitFailure)
+  for hak in ifo["Mod_HakList", GffList]:
+    let hakName = hak["Mod_Hak", GffCExoString] & ".hak"
+    if dataFiles.filterIt(it.endsWith(hakName)).len == 0:
+      echo "Hak required by module not found: " & hakName
+      quit(QuitFailure)
+  rm.add(module)
 
-for hak in ifo["Mod_HakList", GffList]:
-  let hakName = hak["Mod_Hak", GffCExoString] & ".hak"
-  let hak = dataFiles.findIt it.endsWith(hakName)
-  if hak.isSome:
-    echo "Hak: " & hakName
-    let hakErf = hak.get.getErf("HAK ")
-    for rr in hakErf.contents:
-      if rr.resType == "2da".getResType:
-        let content = hakErf[rr].get.readAll
-        echo "  " & $rr
-        rm.add content.newStringStream.newResMemFile(rr, content.len, $rr)
-  else:
-    echo "Hak required by module not found: " & hakName
-    quit(QuitFailure)
+for hak in dataFiles.filterIt it.endsWith(".hak"):
+  echo "Adding hak: " & hak
+  rm.add(hak.getErf("HAK "))
 
-rm.addFiles(dataFiles, @[".2da"])
+rm.addFiles(dataFiles, @[".2da", ".utc"])
 
-proc getGffRoot(resref, restype: string): GffRoot =
-  getGffRoot(resref, restype, module, rm)
+var utcs = newSeq[ResRef]()
+for container in rm.containers:
+  # skip KeyTable, those are the base game resources
+  if container of KeyTable: continue
+  for rr in container.contents:
+    if rr.resType == "utc".getResType:
+      utcs &= rr
 
-let dbName = paramStr(1).splitFile.name & ".sqlite3"
-echo "\nDatabase file: " & dbName
-
-echo "\nTable: creatures"
-let
-  itpGffRoot = getGffRoot("creaturepalcus", "itp")
-  list = itpGffRoot["MAIN", GffList].flatten
-  creatures = list.creatureList(module, rm, dlg, cTlk)
-echo "Entries: " & $creatures.len
-creatures.writeTable(dbName, "creatures")
+echo "\nCreatures (utc) found: " & $utcs.len
+let creatures = utcs.creatureList(rm, dlg, cTlk)
+creatures.writeTable("db.sqlite3", "creatures")

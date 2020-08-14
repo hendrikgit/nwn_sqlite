@@ -1,5 +1,5 @@
 import options, tables
-import neverwinter/[erf, gff, resman, tlk, twoda]
+import neverwinter/[gff, resman, tlk, twoda]
 import helper
 
 type
@@ -73,40 +73,49 @@ proc name(a: Alignment): string =
   of 0 .. 30: "E"
   if lc == ge: "TN" else: lc & ge
 
-proc parentFactionTable(repute: GffRoot): Table[string, string] =
-  let names = newTable[int, string]()
+proc parentFactionTable(repute: GffRoot): Table[int, int] =
   for fac in repute["FactionList", GffList]:
-    let name = fac["FactionName", GffCExoString]
-    names[fac.id] = name
-    result[name] = names.getOrDefault(fac["FactionParentID", GffDword].int, name)
+    let pId = fac["FactionParentID", GffDword]
+    if pId == GffDword.high:
+      result[fac.id] = fac.id
+    else:
+      result[fac.id] = pId.int
 
-proc factionIdTable(repute: GffRoot): Table[string, int] =
+proc factionNameTable(repute: GffRoot): Table[int, string] =
   for fac in repute["FactionList", GffList]:
-    result[fac["FactionName", GffCExoString]] = fac.id
+    result[fac.id] = fac["FactionName", GffCExoString]
 
-proc creatureList*(list: GffList, module: Erf, rm: ResMan, dlg: SingleTlk, tlk: Option[SingleTlk]): seq[Creature] =
+proc creatureList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[SingleTlk]): seq[Creature] =
   let
-    reputeGffRoot = getGffRoot("repute", "fac", module, rm)
-    parentFactions = reputeGffRoot.parentFactionTable
-    factionIds = reputeGffRoot.factionIdTable
+    isMod = rm[newResRef("module", "ifo".getResType)].isSome
     classes2da = get2da("classes", rm)
     racialtypes = get2da("racialtypes", rm)
     gender = get2da("gender", rm)
-  for li in list:
-    if not li.hasField("RESREF", GffResRef): continue
+    reputeGffRoot = if isMod: some rm.getGffRoot("repute", "fac") else: none GffRoot
+    parentFactions = if isMod: some reputeGffRoot.get.parentFactionTable else: none Table[int, int]
+    factionNames = if isMod: some reputeGffRoot.get.factionNameTable else: none Table[int, string]
+  var
+    crs = none Table[string, int]
+  if isMod:
+    let creaturepalcus = rm.getGffRoot("creaturepalcus", "itp")["MAIN", GffList].flatten
+    crs = some initTable[string, int]()
+    for c in creaturepalcus:
+      if not c.hasField("RESREF", GffResRef): continue
+      crs.get[$c["RESREF", GffResRef]] = c["CR", GffFloat].toInt
+  for rr in list:
     let
-      factionName = li["FACTION", GffCExoString]
-      parentFactionName = parentFactions[factionName]
-      resref = $li["RESREF", GffResRef]
-      utc = resref.getGffRoot("utc", module, rm)
-      name = utc.name(dlg, tlk)
+      utc = rm.getGffRoot(rr)
+      factionId = utc["FactionID", GffWord].int
+      factionName = if isMod: factionNames.get[factionId] else: ""
+      parentFactionId = if isMod: parentFactions.get[factionId] else: -1
+      parentFactionName = if isMod: factionNames.get[parentFactionId] else: ""
       classInfo = utc["ClassList", GffList].toClassInfo(classes2da, dlg, tlk)
       alignment = Alignment(lawfulChaotic: utc["LawfulChaotic", GffByte], goodEvil: utc["GoodEvil", GffByte])
     result &= Creature(
-      name: name,
-      resref: resref,
+      name: utc.name(dlg, tlk),
+      resref: rr.resRef,
       tag: utc["Tag", GffCExoString],
-      cr: li["CR", GffFloat].toInt,
+      cr: if isMod: crs.get[rr.resRef] else: -1,
       cr_adjust: utc["CRAdjust", GffInt],
       hp: utc["MaxHitPoints", GffShort],
       class1: classInfo.name1,
@@ -120,9 +129,9 @@ proc creatureList*(list: GffList, module: Erf, rm: ResMan, dlg: SingleTlk, tlk: 
       class3Level: classInfo.level3,
       level: classInfo.level1 + classInfo.level2 + classInfo.level3,
       faction: factionName,
-      faction_id: factionIds[factionName],
+      faction_id: factionId,
       parentFaction: parentFactionName,
-      parentFactionId: factionIds[parentFactionName],
+      parentFactionId: parentFactionId,
       race: racialtypes[utc["Race", GffByte], "Name"].get.tlkText(dlg, tlk),
       race_id: utc["Race", GffByte].int,
       gender: gender[utc["Gender", GffByte], "Name"].get.tlkText(dlg, tlk),
