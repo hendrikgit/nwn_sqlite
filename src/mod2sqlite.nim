@@ -1,9 +1,12 @@
-import os, sequtils, streams, strutils
+import os, sequtils, streams, strformat, strutils
 import neverwinter/[gff, key, resfile, resman, tlk]
 import creature, db, helper
 
+const version = getEnv("VERSION")
+
 if paramCount() == 0 or not commandLineParams().anyIt it.startsWith("-o:"):
-  echo """
+  echo &"""
+(Version: {version})
 Please provide one or more directories or files as parameters.
 All directories given will be searched for the following files:
 .2da, .bif, .hak, .key, .tlk, .utc.

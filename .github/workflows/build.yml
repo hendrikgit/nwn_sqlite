@@ -46,7 +46,7 @@ jobs:
       - name: Compile for Windows
         # on Ubuntu the binary has no .exe extension for some reason
         run: |
-          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" nimble win
+          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" VERSION=`git rev-parse --short HEAD` nimble win
           mv mod2sqlite mod2sqlite.exe
           ls -l mod2sqlite.exe
           file mod2sqlite.exe
@@ -59,7 +59,7 @@ jobs:
 
       - name: Compile debug build for Windows
         run: |
-          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" nimble build -d:mingw --passL:-static --dynlibOverrideAll --passL:winsqlite3.a mod2sqlite
+          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" VERSION=`git rev-parse --short HEAD` nimble build -d:mingw --passL:-static --dynlibOverrideAll --passL:winsqlite3.a mod2sqlite
           mv mod2sqlite mod2sqlite-debug.exe
           ls -l mod2sqlite-debug.exe
           file mod2sqlite-debug.exe
@@ -72,7 +72,7 @@ jobs:
 
       - name: Compile for Linux
         run: |
-          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" nimble musl
+          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" VERSION=`git rev-parse --short HEAD` nimble musl
           ls -l mod2sqlite
           file mod2sqlite
 
@@ -84,7 +84,7 @@ jobs:
 
       - name: Compile debug build for Linux
         run: |
-          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" nimble build --gcc.exe:musl-gcc --gcc.linkerexe:musl-gcc --passL:-static --dynlibOverrideAll --passL:sqlite3.a mod2sqlite
+          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" VERSION=`git rev-parse --short HEAD` nimble build --gcc.exe:musl-gcc --gcc.linkerexe:musl-gcc --passL:-static --dynlibOverrideAll --passL:sqlite3.a mod2sqlite
           mv mod2sqlite mod2sqlite-debug
           ls -l mod2sqlite-debug
           file mod2sqlite-debug
@@ -119,7 +119,7 @@ jobs:
 
       - name: Compile for macOS
         run: |
-          nimble macos
+          VERSION=`git rev-parse --short HEAD` nimble macos
           ls -l mod2sqlite
           file mod2sqlite
 
@@ -131,7 +131,7 @@ jobs:
 
       - name: Compile debug build for macOS
         run: |
-          nimble build --dynlibOverride:sqlite3 --passL:macsqlite3.a mod2sqlite
+          VERSION=`git rev-parse --short HEAD` nimble build --dynlibOverride:sqlite3 --passL:macsqlite3.a mod2sqlite
           ls -l mod2sqlite
           file mod2sqlite
 
