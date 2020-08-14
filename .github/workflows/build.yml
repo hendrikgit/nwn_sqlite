@@ -48,12 +48,14 @@ jobs:
         run: |
           PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" nimble win
           mv mod2sqlite mod2sqlite.exe
-          ls -l mod2sqlite*
+          ls -l mod2sqlite.exe
+          file mod2sqlite.exe
 
       - name: Compile for Linux
         run: |
           PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" nimble musl
-          ls -l mod2sqlite*
+          ls -l mod2sqlite
+          file mod2sqlite
 
       - name: Pack artifacts
         run: |
@@ -63,13 +65,13 @@ jobs:
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v2
         with:
-          name: mod2sqlite-linux-binary
+          name: mod2sqlite.linux.amd64.static
           path: mod2sqlite.linux.amd64.static.zip
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v2
         with:
-          name: mod2sqlite-windows-binary
+          name: mod2sqlite.windows.amd64.static
           path: mod2sqlite.windows.amd64.static.zip
 
   build-macos:
@@ -86,13 +88,19 @@ jobs:
           path: |
             ~/.nimble
             sqlite3.*
-            winsqlite3.*
+            macsqlite3.*
 
       - name: Install nim
         run: brew install nim
 
+      - name: Install nimble packages
+        run: nimble install -y
+
       - name: Compile for macOS
-        run: nimble build -y -d:release
+        run: |
+          nimble macos
+          ls -l mod2sqlite
+          file mod2sqlite
 
       - name: Pack artifact
         run: zip mod2sqlite.macos.amd64.zip mod2sqlite
@@ -100,4 +108,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
+          name: mod2sqlite.macos.amd64
           path: mod2sqlite.macos.amd64.zip

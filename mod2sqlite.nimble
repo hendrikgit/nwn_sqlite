@@ -17,7 +17,7 @@ task getsqlite3, "Download amalgamated sqlite3.c source from https://www.sqlite.
   if not fileExists zip:
     echo "Downloading " & url & " to " & zip
     if findExe("wget") != "":
-      exec "wget " & url & " -O " & zip
+      exec "wget --no-verbose " & url & " -O " & zip
     elif findExe("curl") != "":
       exec "curl " & url & " --output " & zip
     else:
@@ -64,3 +64,19 @@ task win, "Cross compile windows binary with mingw":
   echo "Building windows binary with mingw"
   let file = bin[0]
   exec "nimble build -d:mingw -d:release --passL:-static --dynlibOverrideAll --passL:winsqlite3.a " & file
+
+task macsqlite3a, "Create static library archive macsqlite3.a":
+  if not fileExists "sqlite3.c":
+    echo "sqlite3.c not found. Running task getsqlite3 first."
+    getsqlite3Task()
+  echo "Creating macsqlite3.a"
+  exec "clang -O2 -c -o macsqlite3.o sqlite3.c"
+  exec "ar rcs macsqlite3.a macsqlite3.o"
+
+task macos, "Build macOS binary with sqlite3 statically linked":
+  if not fileExists "macsqlite3.a":
+    echo "macsqlite3.a not found. Running task macsqlite3a first."
+    macsqlite3aTask()
+  echo "Building macOS binary"
+  let file = bin[0]
+  exec "nimble build -d:release --dynlibOverride:sqlite3 --passL:macsqlite3.a " & file
