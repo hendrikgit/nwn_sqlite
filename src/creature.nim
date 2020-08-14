@@ -5,7 +5,7 @@ import helper
 type
   Creature* = object
     name*, resref*, tag*: string
-    cr*, hp*: int
+    cr*, cr_adjust*, hp*: int
     level*: int
     class1*: string
     class1_id*: int
@@ -26,6 +26,12 @@ type
     gender_id*: int
     alignment*: string
     alignment_lawful_chaotic*, alignment_good_evil*: int
+    natural_ac*: int
+    str*, dex*, con*, int*, wis*, cha*: int
+    lootable*, disarmable*, is_immortal*, no_perm_death*, plot*, interruptable*: int
+    walk_rate: int
+    conversation: string
+    comment: string
 
   ClassInfo = object
     name1, name2, name3: string
@@ -101,6 +107,7 @@ proc creatureList*(list: GffList, module: Erf, rm: ResMan, dlg: SingleTlk, tlk: 
       resref: resref,
       tag: utc["Tag", GffCExoString],
       cr: li["CR", GffFloat].toInt,
+      cr_adjust: utc["CRAdjust", GffInt],
       hp: utc["MaxHitPoints", GffShort],
       class1: classInfo.name1,
       class1Id: classInfo.id1,
@@ -123,4 +130,20 @@ proc creatureList*(list: GffList, module: Erf, rm: ResMan, dlg: SingleTlk, tlk: 
       alignment: alignment.name,
       alignment_lawful_chaotic: alignment.lawfulChaotic,
       alignment_good_evil: alignment.goodEvil,
+      natural_ac: utc["NaturalAC", GffByte].int,
+      str: utc["Str", GffByte].int,
+      dex: utc["Dex", GffByte].int,
+      con: utc["Con", GffByte].int,
+      int: utc["Int", GffByte].int,
+      wis: utc["Wis", GffByte].int,
+      cha: utc["Cha", GffByte].int,
+      lootable: utc["Lootable", GffByte].int,
+      disarmable: utc["Disarmable", GffByte].int,
+      is_immortal: utc["IsImmortal", GffByte].int,
+      no_perm_death: utc["NoPermDeath", GffByte].int,
+      plot: utc["Plot", GffByte].int,
+      interruptable: utc["Interruptable", GffByte].int,
+      walk_rate: utc["WalkRate", GffInt],
+      conversation: $utc["Conversation", GffResRef],
+      comment: utc["Comment", GffCExoString],
     )
