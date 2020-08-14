@@ -51,6 +51,11 @@ jobs:
           ls -l mod2sqlite.exe
           file mod2sqlite.exe
 
+      - name: Compile debug build for Windows
+        run: |
+          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" nimble build -d:mingw --passL:-static --dynlibOverrideAll --passL:winsqlite3.a mod2sqlite
+          mv mod2sqlite mod2sqlite-debug.exe
+
       - name: Compile for Linux
         run: |
           PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" nimble musl
@@ -61,6 +66,7 @@ jobs:
         run: |
           zip mod2sqlite.linux.amd64.static.zip mod2sqlite
           zip mod2sqlite.windows.amd64.static.zip mod2sqlite.exe
+          zip debug.mod2sqlite.windows.amd64.static.zip mod2sqlite-debug.exe
 
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v2
@@ -73,6 +79,12 @@ jobs:
         with:
           name: mod2sqlite.windows.amd64.static
           path: mod2sqlite.windows.amd64.static.zip
+
+      - name: Upload Windows debug artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: debug.mod2sqlite.windows.amd64.static
+          path: debug.mod2sqlite.windows.amd64.static.zip
 
   build-macos:
     runs-on: macos-latest
