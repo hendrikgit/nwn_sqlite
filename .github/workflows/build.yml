@@ -62,29 +62,23 @@ jobs:
           ls -l mod2sqlite
           file mod2sqlite
 
-      - name: Pack artifacts
-        run: |
-          zip mod2sqlite.linux.amd64.static.zip mod2sqlite
-          zip mod2sqlite.windows.amd64.static.zip mod2sqlite.exe
-          zip debug.mod2sqlite.windows.amd64.static.zip mod2sqlite-debug.exe
-
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v2
         with:
           name: mod2sqlite.linux.amd64.static
-          path: mod2sqlite.linux.amd64.static.zip
+          path: mod2sqlite
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v2
         with:
           name: mod2sqlite.windows.amd64.static
-          path: mod2sqlite.windows.amd64.static.zip
+          path: mod2sqlite.exe
 
       - name: Upload Windows debug artifact
         uses: actions/upload-artifact@v2
         with:
           name: debug.mod2sqlite.windows.amd64.static
-          path: debug.mod2sqlite.windows.amd64.static.zip
+          path: mod2sqlite-debug.exe
 
   build-macos:
     runs-on: macos-latest
