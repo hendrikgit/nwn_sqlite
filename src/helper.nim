@@ -61,8 +61,12 @@ proc getErf*(file, erfType: string): Erf =
 
 proc getGffRoot*(rm: ResMan, resref: ResRef): GffRoot =
   if rm[resref].isSome:
-    let gffContent = rm[resref].get.readAll
-    gffContent.newStringStream.readGffRoot
+    try:
+      let gffContent = rm[resref].get.readAll
+      gffContent.newStringStream.readGffRoot
+    except:
+      echo "Error reading \"" & $resref & "\". Is it a valid gff file?"
+      quit(QuitFailure)
   else:
     echo "Error: GFF " & $resref & " not found."
     quit(QuitFailure)
