@@ -1,4 +1,4 @@
-name: Build binaries
+name: Build binaries and upload artifacts
 
 on:
   push:
@@ -51,10 +51,24 @@ jobs:
           ls -l mod2sqlite.exe
           file mod2sqlite.exe
 
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: mod2sqlite.windows.amd64.static
+          path: mod2sqlite.exe
+
       - name: Compile debug build for Windows
         run: |
           PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" nimble build -d:mingw --passL:-static --dynlibOverrideAll --passL:winsqlite3.a mod2sqlite
           mv mod2sqlite mod2sqlite-debug.exe
+          ls -l mod2sqlite-debug.exe
+          file mod2sqlite-debug.exe
+
+      - name: Upload Windows debug artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: debug.mod2sqlite.windows.amd64.static
+          path: mod2sqlite-debug.exe
 
       - name: Compile for Linux
         run: |
@@ -68,17 +82,18 @@ jobs:
           name: mod2sqlite.linux.amd64.static
           path: mod2sqlite
 
-      - name: Upload Windows artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: mod2sqlite.windows.amd64.static
-          path: mod2sqlite.exe
+      - name: Compile debug build for Linux
+        run: |
+          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" nimble build --gcc.exe:musl-gcc --gcc.linkerexe:musl-gcc --passL:-static --dynlibOverrideAll --passL:sqlite3.a mod2sqlite
+          mv mod2sqlite mod2sqlite-debug
+          ls -l mod2sqlite-debug
+          file mod2sqlite-debug
 
-      - name: Upload Windows debug artifact
+      - name: Upload Linux debug artifact
         uses: actions/upload-artifact@v2
         with:
-          name: debug.mod2sqlite.windows.amd64.static
-          path: mod2sqlite-debug.exe
+          name: debug.mod2sqlite.linux.amd64.static
+          path: mod2sqlite-debug
 
   build-macos:
     runs-on: macos-latest
@@ -108,11 +123,20 @@ jobs:
           ls -l mod2sqlite
           file mod2sqlite
 
-      - name: Pack artifact
-        run: zip mod2sqlite.macos.amd64.zip mod2sqlite
-
-      - name: Upload artifact
+      - name: Upload macOS artifact
         uses: actions/upload-artifact@v2
         with:
           name: mod2sqlite.macos.amd64
-          path: mod2sqlite.macos.amd64.zip
+          path: mod2sqlite
+
+      - name: Compile debug build for macOS
+        run: |
+          nimble build --dynlibOverride:sqlite3 --passL:macsqlite3.a mod2sqlite
+          ls -l mod2sqlite
+          file mod2sqlite
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: debug.mod2sqlite.macos.amd64
+          path: mod2sqlite
