@@ -1,5 +1,5 @@
 import os, options, sequtils, streams, strutils, tables
-import neverwinter/[erf, gff, resman, tlk, twoda]
+import neverwinter/[erf, gff, resfile, resman, tlk, twoda]
 
 template findIt*(s, pred: untyped): untyped =
   var result: Option[type(s[0])]
@@ -7,6 +7,18 @@ template findIt*(s, pred: untyped): untyped =
     if result.isNone and pred:
       result = some it
   result
+
+proc addFiles*(rm: ResMan, files: seq[string], filterExtensions = newSeq[string]()) =
+  let filesToAdd =
+    if filterExtensions.len == 0:
+      files
+    else:
+      files.filterIt filterExtensions.any do (ext: string) -> bool: it.endsWith(ext)
+  if filesToAdd.len > 0:
+    echo "Adding files:"
+    for f in filesToAdd:
+      echo "  " & f
+      rm.add f.newResFile
 
 proc flatten*(list: GffList): GffList =
   for li in list:
@@ -28,7 +40,7 @@ proc getDataFiles*(dataDirs: seq[string]): seq[string] =
       echo "Directory not found: " & dir
       quit(QuitFailure)
     for file in dir.joinPath("*").walkFiles:
-      if file.splitFile.ext in [".bif", ".hak", ".key", ".tlk"]:
+      if file.splitFile.ext in [".2da", ".bif", ".hak", ".key", ".tlk"]:
         result &= file
 
 proc getErf*(file, erfType: string): Erf =

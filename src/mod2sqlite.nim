@@ -73,6 +73,8 @@ for hak in ifo["Mod_HakList", GffList]:
     echo "Hak required by module not found: " & hakName
     quit(QuitFailure)
 
+rm.addFiles(dataFiles, @[".2da"])
+
 proc getGffRoot(resref, restype: string): GffRoot =
   getGffRoot(resref, restype, module, rm)
 
