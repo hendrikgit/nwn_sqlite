@@ -10,7 +10,7 @@ if paths.len == 0 or not commandLineParams().anyIt it.startsWith("-o:"):
 (Version: {version})
 Please provide one or more directories or files as parameters.
 All directories given will be searched for the following files:
-.2da, .bif, .hak, .key, .tlk, .utc.
+.2da, .bif, .hak, .key, .tlk, .utc., .uti
 
 Subdirectories are ignored.
 
@@ -83,7 +83,7 @@ for hak in dataFiles.filterIt it.endsWith(".hak"):
   echo "Adding hak: " & hak
   rm.add(hak.getErf("HAK "))
 
-rm.addFiles(dataFiles, @[".2da", ".utc"])
+rm.addFiles(dataFiles, @[".2da", ".utc", ".uti"])
 
 var
   utcs = newSeq[ResRef]()

@@ -1,7 +1,7 @@
 import os, options, sequtils, streams, strutils, tables
 import neverwinter/[erf, gff, resfile, resman, tlk, twoda]
 
-const dataFileExtensions = [".2da", ".bif", ".hak", ".key", ".mod", ".tlk", ".utc"]
+const dataFileExtensions = [".2da", ".bif", ".hak", ".key", ".mod", ".tlk", ".utc", ".uti"]
 
 type
   PalcusInfo* = Table[int, tuple[name: string, full: string]]
