@@ -1,6 +1,6 @@
 import os, sequtils, streams, strformat, strutils
 import neverwinter/[gff, key, resfile, resman, tlk]
-import creature, db, helper, item
+import creature, db, helper, item, placeable
 
 const version = getEnv("VERSION")
 
@@ -10,7 +10,7 @@ if paths.len == 0 or not commandLineParams().anyIt it.startsWith("-o:"):
 (Version: {version})
 Please provide one or more directories or files as parameters.
 All directories given will be searched for the following files:
-.2da, .bif, .hak, .key, .tlk, .utc., .uti
+.2da, .bif, .hak, .key, .tlk, .utc., .uti, .utp
 
 Subdirectories are ignored.
 
@@ -83,11 +83,12 @@ for hak in dataFiles.filterIt it.endsWith(".hak"):
   echo "Adding hak: " & hak
   rm.add(hak.getErf("HAK "))
 
-rm.addFiles(dataFiles, @[".2da", ".utc", ".uti"])
+rm.addFiles(dataFiles, @[".2da", ".utc", ".uti", ".utp"])
 
 var
   utcs = newSeq[ResRef]()
   utis = newSeq[ResRef]()
+  utps = newSeq[ResRef]()
 for container in rm.containers:
   # skip KeyTable, those are the base game resources
   if container of KeyTable: continue
@@ -97,6 +98,8 @@ for container in rm.containers:
       utcs &= rr
     elif restype == "uti".getResType:
       utis &= rr
+    elif restype == "utp".getResType:
+      utps &= rr
 
 echo "\nCreatures (utc) found: " & $utcs.len
 let creatures = utcs.creatureList(rm, dlg, cTlk)
@@ -105,3 +108,7 @@ creatures.writeTable(dbName, "creatures")
 echo "\nItems (uti) found: " & $utis.len
 let items = utis.itemList(rm, dlg, cTlk)
 items.writeTable(dbName, "items")
+
+echo "\nPlaceables (utp) found: " & $utps.len
+let placeables = utps.placeableList(rm, dlg, cTlk)
+placeables.writeTable(dbName, "placeables")
