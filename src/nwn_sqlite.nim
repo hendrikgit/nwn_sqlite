@@ -1,6 +1,6 @@
 import os, sequtils, streams, strformat, strutils
 import neverwinter/[gff, key, resfile, resman, tlk]
-import creature, db, helper
+import creature, db, helper, item
 
 const version = getEnv("VERSION")
 
@@ -85,14 +85,23 @@ for hak in dataFiles.filterIt it.endsWith(".hak"):
 
 rm.addFiles(dataFiles, @[".2da", ".utc"])
 
-var utcs = newSeq[ResRef]()
+var
+  utcs = newSeq[ResRef]()
+  utis = newSeq[ResRef]()
 for container in rm.containers:
   # skip KeyTable, those are the base game resources
   if container of KeyTable: continue
   for rr in container.contents:
-    if rr.resType == "utc".getResType:
+    let restype = rr.resType
+    if restype == "utc".getResType:
       utcs &= rr
+    elif restype == "uti".getResType:
+      utis &= rr
 
 echo "\nCreatures (utc) found: " & $utcs.len
 let creatures = utcs.creatureList(rm, dlg, cTlk)
 creatures.writeTable(dbName, "creatures")
+
+echo "\nItems (utc) found: " & $utis.len
+let items = utis.itemList(rm, dlg, cTlk)
+items.writeTable(dbName, "items")
