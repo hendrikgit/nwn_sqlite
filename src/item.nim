@@ -1,4 +1,4 @@
-import neverwinter/[gff, resman, tlk]
+import neverwinter/[gff, resman, tlk, twoda]
 import helper
 
 type
@@ -15,17 +15,19 @@ type
     stolen: int
     comment: string
 
-proc itemList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, cTlk: Option[SingleTlk]): seq[Item] =
+proc itemList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[SingleTlk]): seq[Item] =
+  let baseitems2da = rm.get2da("baseitems")
   for rr in list:
     let
       uti = rm.getGffRoot(rr)
-      baseItemId = uti["BaseItem", GffInt]
+      baseItemId = uti["BaseItem", GffInt].int
+      baseItem = baseitems2da[baseItemId, "Name"].get.tlkText(dlg, tlk)
     result &= Item(
-      name: uti["LocalizedName", GffCExoLocString].getStr(dlg, cTlk),
+      name: uti["LocalizedName", GffCExoLocString].getStr(dlg, tlk),
       resref: rr.resRef,
       tag: uti["Tag", ""],
       base_item_id: baseItemId,
-      base_item: "todo",
+      base_item: baseItem,
       identified: uti["Identified", 0.GffByte].int,
       stack_size: uti["StackSize", 0.GffWord].int,
       charges: uti["Charges", 0.GffByte].int,

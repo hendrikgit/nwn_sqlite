@@ -88,9 +88,9 @@ proc factionNameTable(repute: GffRoot): Table[int, string] =
 proc creatureList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[SingleTlk]): seq[Creature] =
   let
     isMod = rm[newResRef("module", "ifo".getResType)].isSome
-    classes2da = get2da("classes", rm)
-    racialtypes = get2da("racialtypes", rm)
-    gender = get2da("gender", rm)
+    classes2da = rm.get2da("classes")
+    racialtypes = rm.get2da("racialtypes")
+    gender = rm.get2da("gender")
     reputeGffRoot = if isMod: some rm.getGffRoot("repute", "fac") else: none GffRoot
     parentFactions = if isMod: some reputeGffRoot.get.parentFactionTable else: none Table[int, int]
     factionNames = if isMod: some reputeGffRoot.get.factionNameTable else: none Table[int, string]

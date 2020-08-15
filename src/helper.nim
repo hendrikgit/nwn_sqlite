@@ -29,7 +29,7 @@ proc flatten*(list: GffList): GffList =
     else:
       result &= li
 
-proc get2da*(name: string, rm: ResMan): TwoDA =
+proc get2da*(rm: ResMan, name: string): TwoDA =
   if rm.contains(newResRef(name, "2da".getResType)):
     result = rm[newResRef(name, "2da".getResType)].get.readAll.newStringStream.readTwoDA
   else:
