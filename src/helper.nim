@@ -20,9 +20,9 @@ proc addFiles*(rm: ResMan, files: seq[string], filterExtensions = newSeq[string]
     else:
       files.filterIt filterExtensions.any do (ext: string) -> bool: it.endsWith(ext)
   if filesToAdd.len > 0:
-    echo "Adding files:"
+    echo "Adding " & $filesToAdd.len & " files"
     for f in filesToAdd:
-      echo "  " & f
+      if filesToAdd.len <= 10: echo "  " & f
       rm.add f.newResFile
 
 proc flatten*(list: GffList): GffList =
