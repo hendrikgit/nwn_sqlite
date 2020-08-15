@@ -18,30 +18,13 @@ type
     stolen: int
     comment: string
 
-  ItempalcusInfo = Table[int, tuple[name: string, full: string]]
-
-proc toItempalcusInfo(list: GffList, dlg: SingleTlk, tlk: Option[SingleTlk], parents = ""): ItempalcusInfo =
-  # Lists with no ID contain no items directly, only other lists
-  for li in list:
-    if li.hasField("LIST", GffList):
-      var name = ""
-      if li.hasField("NAME", GffCExoString):
-        name = li["NAME", GffCExoString]
-      if li.hasField("STRREF", GffDword):
-        name = li["STRREF", GffDword].tlkText(dlg, tlk)
-      let parentsNew = if parents.len > 0: parents & ">" & name else: name
-      if li.hasField("ID", GffByte):
-        result[li["ID", GffByte].int] = (name, parentsNew)
-      for k, v in toItempalcusInfo(li["LIST", GffList], dlg, tlk, parentsNew):
-        result[k] = v
-
 proc itemList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[SingleTlk]): seq[Item] =
   let baseitems2da = rm.get2da("baseitems")
   let isMod = rm[newResRef("module", "ifo".getResType)].isSome
-  var palcusInfo: ItempalcusInfo
+  var palcusInfo: PalcusInfo
   if isMod:
     let itempalcus = rm.getGffRoot("itempalcus", "itp")
-    palcusInfo = toItempalcusInfo(itempalcus["MAIN", GffList], dlg, tlk)
+    palcusInfo = toPalcusInfo(itempalcus["MAIN", GffList], dlg, tlk)
   for rr in list:
     let
       uti = rm.getGffRoot(rr)

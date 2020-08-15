@@ -3,6 +3,9 @@ import neverwinter/[erf, gff, resfile, resman, tlk, twoda]
 
 const dataFileExtensions = [".2da", ".bif", ".hak", ".key", ".mod", ".tlk", ".utc"]
 
+type
+  PalcusInfo* = Table[int, tuple[name: string, full: string]]
+
 template findIt*(s, pred: untyped): untyped =
   var result: Option[type(s[0])]
   for it {.inject.} in s.items:
@@ -95,3 +98,17 @@ proc getStr*(locstr: GffCExoLocString, dlg: SingleTlk, tlk: Option[SingleTlk]): 
     return locstr.entries[Language.English.ord]
   for value in locstr.entries.values:
     if value.len > 0: return value
+
+proc toPalcusInfo*(list: GffList, dlg: SingleTlk, tlk: Option[SingleTlk], parents = ""): PalcusInfo =
+  for li in list:
+    if li.hasField("LIST", GffList):
+      var name = ""
+      if li.hasField("NAME", GffCExoString):
+        name = li["NAME", GffCExoString]
+      if li.hasField("STRREF", GffDword):
+        name = li["STRREF", GffDword].tlkText(dlg, tlk)
+      let parentsNew = if parents.len > 0: parents & ">" & name else: name
+      if li.hasField("ID", GffByte):
+        result[li["ID", GffByte].int] = (name, parentsNew)
+      for k, v in toPalcusInfo(li["LIST", GffList], dlg, tlk, parentsNew):
+        result[k] = v

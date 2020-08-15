@@ -5,6 +5,8 @@ import helper
 type
   Creature = object
     name, resref, tag: string
+    palette, palette_full: string
+    palette_id: int
     cr, cr_adjust, hp: int
     level: int
     class1: string
@@ -95,16 +97,18 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[Si
     parentFactions = if isMod: some reputeGffRoot.get.parentFactionTable else: none Table[int, int]
     factionNames = if isMod: some reputeGffRoot.get.factionNameTable else: none Table[int, string]
   var
-    crs = none Table[string, int]
+    crs: Table[string, int]
+    palcusInfo: PalcusInfo
   if isMod:
-    let creaturepalcus = rm.getGffRoot("creaturepalcus", "itp")["MAIN", GffList].flatten
-    crs = some initTable[string, int]()
-    for c in creaturepalcus:
+    let creaturepalcus = rm.getGffRoot("creaturepalcus", "itp")["MAIN", GffList]
+    for c in creaturepalcus.flatten:
       if not c.hasField("RESREF", GffResRef): continue
-      crs.get[$c["RESREF", GffResRef]] = c["CR", GffFloat].toInt
+      crs[$c["RESREF", GffResRef]] = c["CR", GffFloat].toInt
+    palcusInfo = creaturepalcus.toPalcusInfo(dlg, tlk)
   for rr in list:
     let
       utc = rm.getGffRoot(rr)
+      paletteId = utc["PaletteID", 0.GffByte].int
       factionId = utc["FactionID", GffWord].int
       factionName = if isMod: factionNames.get[factionId] else: ""
       parentFactionId = if isMod: parentFactions.get[factionId] else: -1
@@ -115,7 +119,10 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[Si
       name: utc.name(dlg, tlk),
       resref: rr.resRef,
       tag: utc["Tag", ""],
-      cr: if isMod: crs.get[rr.resRef] else: -1,
+      palette: palcusInfo.getOrDefault(paletteId).name,
+      palette_full: palcusInfo.getOrDefault(paletteId).full,
+      palette_id: paletteId,
+      cr: crs.getOrDefault(rr.resRef, -1),
       cr_adjust: utc["CRAdjust", 0.GffInt],
       hp: utc["MaxHitPoints", 0.GffShort],
       class1: classInfo.name1,
