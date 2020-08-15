@@ -1,3 +1,4 @@
+import strutils
 import neverwinter/[gff, resman, tlk, twoda]
 import helper
 
@@ -7,7 +8,7 @@ type
     base_item: string
     base_item_id: int
     identified: int
-    stack_size: int
+    stack_size, stacking_baseitems: int
     charges: int
     cost, add_cost: int
     cursed: int
@@ -30,6 +31,7 @@ proc itemList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[Single
       base_item: baseItem,
       identified: uti["Identified", 0.GffByte].int,
       stack_size: uti["StackSize", 0.GffWord].int,
+      stacking_baseitems: baseitems2da[baseItemId, "Stacking"].get.parseInt,
       charges: uti["Charges", 0.GffByte].int,
       cost: uti["Cost", 0.GffDword].int,
       add_cost: uti["AddCost", 0.GffDword].int,
