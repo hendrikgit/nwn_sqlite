@@ -1,0 +1,169 @@
+name: Create a release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-linux-win:
+    runs-on: ubuntu-18.04
+    env:
+      NIMVER: "1.2.6"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cache nim, nimble, sqlite3
+        uses: actions/cache@v2
+        id: cache
+        with:
+          key: build-${{ runner.os }}-nim-${{ env.NIMVER }}
+          path: |
+            nim
+            ~/.nimble
+            sqlite3.*
+            winsqlite3.*
+
+      - name: Install apt packages
+        run: sudo apt-get install -y --no-install-recommends binutils musl-tools mingw-w64
+
+      - name: Download and setup nim, nimble
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          mkdir nim
+          cd nim
+          wget https://nim-lang.org/download/nim-$NIMVER-linux_x64.tar.xz
+          tar xf nim-$NIMVER-linux_x64.tar.xz
+
+      - name: Install nimble packages
+        run: PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" nimble install -y
+
+      - name: Compile for Windows
+        # on Ubuntu the binary has no .exe extension for some reason
+        run: |
+          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" VERSION=`git rev-parse --short HEAD` nimble win
+          mv nwn_sqlite nwn_sqlite.exe
+          ls -l nwn_sqlite.exe
+          file nwn_sqlite.exe
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: nwn_sqlite.windows.amd64.static
+          path: nwn_sqlite.exe
+
+      - name: Compile for Linux
+        run: |
+          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" VERSION=`git rev-parse --short HEAD` nimble musl
+          ls -l nwn_sqlite
+          file nwn_sqlite
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: nwn_sqlite.linux.amd64.static
+          path: nwn_sqlite
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cache nimble, sqlite3
+        uses: actions/cache@v2
+        id: cache
+        with:
+          key: build-${{ runner.os }}
+          path: |
+            ~/.nimble
+            sqlite3.*
+            macsqlite3.*
+
+      - name: Install nim
+        run: brew install nim
+
+      - name: Install nimble packages
+        run: nimble install -y
+
+      - name: Compile for macOS
+        run: |
+          VERSION=`git rev-parse --short HEAD` nimble macos
+          ls -l nwn_sqlite
+          file nwn_sqlite
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: nwn_sqlite.macos.amd64
+          path: nwn_sqlite
+
+  release:
+    needs: [build-linux-win, build-macos]
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Download Linux artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: nwn_sqlite.linux.amd64.static
+
+      - name: Pack Linux artifact
+        run: zip nwn_sqlite.linux.amd64.static.zip nwn_sqlite
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: nwn_sqlite.windows.amd64.static
+
+      - name: Pack Windows artifact
+        run: zip nwn_sqlite.windows.amd64.static.zip nwn_sqlite.exe
+
+      - name: Download macOS artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: nwn_sqlite.macos.amd64
+
+      - name: Pack macOS artifact
+        run: zip nwn_sqlite.macos.amd64.zip nwn_sqlite
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Linux release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: nwn_sqlite.linux.amd64.static.zip
+          asset_name: nwn_sqlite.linux.amd64.static.zip
+          asset_content_type: application/zip
+
+      - name: Upload macOS release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: nwn_sqlite.macos.amd64.zip
+          asset_name: nwn_sqlite.macos.amd64.zip
+          asset_content_type: application/zip
+
+      - name: Upload Windows release asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: nwn_sqlite.windows.amd64.static.zip
+          asset_name: nwn_sqlite.windows.amd64.static.zip
+          asset_content_type: application/zip
