@@ -8,7 +8,7 @@ This program is written in [Nim](https://nim-lang.org/) and uses the excellent [
 For [table schemas see below](#table-schemas).
 
 ## Download binaries
-Binaries are available for download on the [releases](https://github.com/hendrikgit/nwn_sqlite/releases/latest) page.
+Binaries are available for download on the [releases](https://github.com/hendrikgit/nwn_sqlite/releases) page.
 
 ## What exactly does it do?
 It reads the information from Neverwinter files. A .mod file could be read. Also various GFF files like `.utc`, `.uti` and so on. Names are looked up by reading the relevant `.2da` files and looking up strrefs in `dialog.tlk` or a possible custom tlk. The paths to these additional resources have to be provided as command line arguments.
