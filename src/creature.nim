@@ -3,32 +3,32 @@ import neverwinter/[gff, resman, tlk, twoda]
 import helper
 
 type
-  Creature* = object
-    name*, resref*, tag*: string
-    cr*, cr_adjust*, hp*: int
-    level*: int
-    class1*: string
-    class1_id*: int
-    class1_level*: int
-    class2*: string
-    class2_id*: int
-    class2_level*: int
-    class3*: string
-    class3_id*: int
-    class3_level*: int
-    faction*: string
-    faction_id*: int
-    parent_faction*: string
-    parent_faction_id*: int
-    race*: string
-    race_id*: int
-    gender*: string
-    gender_id*: int
-    alignment*: string
-    alignment_lawful_chaotic*, alignment_good_evil*: int
-    natural_ac*: int
-    str*, dex*, con*, int*, wis*, cha*: int
-    lootable*, disarmable*, is_immortal*, no_perm_death*, plot*, interruptable*: int
+  Creature = object
+    name, resref, tag: string
+    cr, cr_adjust, hp: int
+    level: int
+    class1: string
+    class1_id: int
+    class1_level: int
+    class2: string
+    class2_id: int
+    class2_level: int
+    class3: string
+    class3_id: int
+    class3_level: int
+    faction: string
+    faction_id: int
+    parent_faction: string
+    parent_faction_id: int
+    race: string
+    race_id: int
+    gender: string
+    gender_id: int
+    alignment: string
+    alignment_lawful_chaotic, alignment_good_evil: int
+    natural_ac: int
+    str, dex, con, int, wis, cha: int
+    lootable, disarmable, is_immortal, no_perm_death, plot, interruptable: int
     walk_rate: int
     conversation: string
     comment: string
