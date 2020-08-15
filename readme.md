@@ -16,13 +16,14 @@ It reads the information from Neverwinter files. A .mod file could be read. Also
 That data is then written to a sqlite3 database file.
 
 ## Usage
-A good start is to run the program and keep adding paths, there should be (hopefully) helpful error messages.
+A good start is to run the program and keep adding paths, there should be (hopefully) helpful error messages.  
+Don't forget the servers override folder.
 
 **Warning: Existing tables in the sqlite database file will be dropped (and recreated and filled with new data).**
 
 Example program call on Linux:
 ```
-./nwn_sqlite -o:sf.sqlite3 ~/server/modules/SoulForge.mod ~/Beamdog\ Library/00785/lang/en/data/ ~/Beamdog\ Library/00785/data/ ~/server/tlk/ ~/server/hak
+./nwn_sqlite -o:sf.sqlite3 ~/server/modules/SoulForge.mod ~/Beamdog\ Library/00785/lang/en/data/ ~/Beamdog\ Library/00785/data/ ~/server/tlk/ ~/server/hak ~/server/override
 ```
 
 ## Language
