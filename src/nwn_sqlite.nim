@@ -102,6 +102,6 @@ echo "\nCreatures (utc) found: " & $utcs.len
 let creatures = utcs.creatureList(rm, dlg, cTlk)
 creatures.writeTable(dbName, "creatures")
 
-echo "\nItems (utc) found: " & $utis.len
+echo "\nItems (uti) found: " & $utis.len
 let items = utis.itemList(rm, dlg, cTlk)
 items.writeTable(dbName, "items")
