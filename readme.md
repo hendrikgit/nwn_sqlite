@@ -116,14 +116,17 @@ cid  name                      type
 3    tag                       text
 4    base_item                 text
 5    base_item_id              integer
-6    identified                integer
-7    stack_size                integer
-8    stacking_baseitems        integer
-9    charges                   integer
-10   cost                      integer
-11   add_cost                  integer
-12   cursed                    integer
-13   plot                      integer
-14   stolen                    integer
-15   comment                   text
+6    palette                   text
+7    palette_full              text
+8    palette_id                integer
+9    identified                integer
+10   stack_size                integer
+11   stacking_baseitems        integer
+12   charges                   integer
+13   cost                      integer
+14   add_cost                  integer
+15   cursed                    integer
+16   plot                      integer
+17   stolen                    integer
+18   comment                   text
 ```
