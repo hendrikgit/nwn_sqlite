@@ -64,7 +64,7 @@ if modFiles.len > 0:
     quit(QuitFailure)
   let ifo = modRes.get.readAll.newStringStream.readGffRoot
   let cTlkName = ifo["Mod_CustomTlk", GffCExoString]
-  if cTlkName != "":
+  if cTlkName.len > 0:
     let tlk = dataFiles.findIt it.endsWith(cTlkName & ".tlk")
     if tlk.isSome:
       echo "Adding custom tlk: " & cTlkName & ".tlk"

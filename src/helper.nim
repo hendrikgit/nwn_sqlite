@@ -94,4 +94,4 @@ proc getStr*(locstr: GffCExoLocString, dlg: SingleTlk, tlk: Option[SingleTlk]): 
   if locstr.entries.hasKey(Language.English.ord):
     return locstr.entries[Language.English.ord]
   for value in locstr.entries.values:
-    if value != "": return value
+    if value.len > 0: return value

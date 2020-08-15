@@ -59,7 +59,7 @@ proc toClassInfo(classList: GffList, classes2da: TwoDA, dlg: SingleTlk, tlk: Opt
 proc name(utc: GffRoot, dlg: SingleTlk, tlk: Option[SingleTlk]): string =
   result = utc["FirstName", GffCExoLocString].getStr(dlg, tlk)
   let last = utc["LastName", GffCExoLocString].getStr(dlg, tlk)
-  if last != "":
+  if last.len > 0:
     result &= " " & last
 
 proc name(a: Alignment): string =
