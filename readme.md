@@ -11,24 +11,18 @@ For [table schemas see below](#table-schemas).
 Binaries are available for download on the [releases](https://github.com/hendrikgit/nwn_sqlite/releases/latest) page.
 
 ## What exactly does it do?
-It reads the information from a Neverwinter module file contained in `module.ifo`, `*palcus.itp` and various GFF files like `.utc`, `.utp` and so on. Names are looked up by reading the relevant `.2da` files and looking up strrefs in `dialog.tlk` or a possible custom tlk. The paths to these additional resources have to be provided as command line arguments.
+It reads the information from Neverwinter files. A .mod file could be read. Also various GFF files like `.utc`, `.uti` and so on. Names are looked up by reading the relevant `.2da` files and looking up strrefs in `dialog.tlk` or a possible custom tlk. The paths to these additional resources have to be provided as command line arguments.
 
-That data is then written to a sqlite3 database file named as the module file but with the extension of .sqlite3.
+That data is then written to a sqlite3 database file.
 
 ## Usage
-nwn_sqlite expects at least 2 command line arguments. The first one always has to be a module `.mod` file.  
-All the other arguments will be treated as directory paths where nwn_sqlite looks for `.key` (and `.bif` referenced in that key), `.tlk` and `.hak` files.
+A good start is to run the program and keep adding paths, there should be (hopefully) helpful error messages.
 
-At minimum paths to `dialog.tlk` and various .2da files are needed (in additon to the module, as first argument). The .2da files can be in a hak or in a .bif referenced by a .key. They could also just be in a folder directly.
-
-A good start can be to run the program and keep adding directories, there should be (hopefully) helpful error messages.
-
-A database file with the *name of the module file and the extension `.sqlite3`* will be written.  
-**Warning: If that file already exists and is a sqlite database the existing tables in it will be dropped (and recreated and filled with new data).**
+**Warning: Existing tables in the sqlite database file will be dropped (and recreated and filled with new data).**
 
 Example program call on Linux:
 ```
-./nwn_sqlite ~/sfee/server/modules/SoulForge.mod ~/Beamdog\ Library/00785/lang/en/data/ ~/Beamdog\ Library/00785/data/ ~/sfee/server/tlk/ ~/sfee/server/hak
+./nwn_sqlite -o:sf.sqlite3 ~/server/modules/SoulForge.mod ~/Beamdog\ Library/00785/lang/en/data/ ~/Beamdog\ Library/00785/data/ ~/server/tlk/ ~/server/hak
 ```
 
 ## Language
@@ -51,7 +45,10 @@ On my computer with my module file it takes less than a second to create the sql
 
 ## Table schemas
 Schemas for the tables in the sqlite3 database file that will be written.  
-To generate schema output like what is seen below run `sqlite3 dbname.sqlite3 < schemas.sqlite | sed -r 's/.{9}$//'`.  
+To generate schema output like what is seen below run:
+```
+sqlite3 dbname.sqlite3 < schemas.sqlite | sed -r 's/.{9}$//'
+```
 [schemas.sqlite](schemas.sqlite) contains the commands to generate the table info.
 
 ### creatures
