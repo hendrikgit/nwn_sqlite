@@ -109,7 +109,10 @@ jobs:
           name: nwn_sqlite.linux.amd64.static
 
       - name: Pack Linux artifact
-        run: zip nwn_sqlite.linux.amd64.static.zip nwn_sqlite
+        # the executable flag is removed on artifact upload
+        run: |
+          chmod +x nwn_sqlite
+          zip nwn_sqlite.linux.amd64.static.zip nwn_sqlite
 
       - name: Download Windows artifact
         uses: actions/download-artifact@v2
@@ -125,7 +128,9 @@ jobs:
           name: nwn_sqlite.macos.amd64
 
       - name: Pack macOS artifact
-        run: zip nwn_sqlite.macos.amd64.zip nwn_sqlite
+        run: |
+          chmod +x nwn_sqlite
+          zip nwn_sqlite.macos.amd64.zip nwn_sqlite
 
       - name: Create release
         id: create_release
