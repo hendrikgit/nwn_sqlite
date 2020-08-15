@@ -4,7 +4,7 @@ author        = "Hendrik Albers"
 description   = "Reads data from a Neverwinter Nights module and writes it to a sqlite database"
 license       = "MIT"
 srcDir        = "src"
-bin           = @["mod2sqlite"]
+bin           = @["nwn_sqlite"]
 
 # Dependencies
 requires "nim == 1.2.6"

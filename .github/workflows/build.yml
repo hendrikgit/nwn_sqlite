@@ -47,53 +47,53 @@ jobs:
         # on Ubuntu the binary has no .exe extension for some reason
         run: |
           PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" VERSION=`git rev-parse --short HEAD` nimble win
-          mv mod2sqlite mod2sqlite.exe
-          ls -l mod2sqlite.exe
-          file mod2sqlite.exe
+          mv nwn_sqlite nwn_sqlite.exe
+          ls -l nwn_sqlite.exe
+          file nwn_sqlite.exe
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v2
         with:
-          name: mod2sqlite.windows.amd64.static
-          path: mod2sqlite.exe
+          name: nwn_sqlite.windows.amd64.static
+          path: nwn_sqlite.exe
 
       - name: Compile debug build for Windows
         run: |
-          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" VERSION=`git rev-parse --short HEAD` nimble build -d:mingw --passL:-static --dynlibOverrideAll --passL:winsqlite3.a mod2sqlite
-          mv mod2sqlite mod2sqlite-debug.exe
-          ls -l mod2sqlite-debug.exe
-          file mod2sqlite-debug.exe
+          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" VERSION=`git rev-parse --short HEAD` nimble build -d:mingw --passL:-static --dynlibOverrideAll --passL:winsqlite3.a nwn_sqlite
+          mv nwn_sqlite nwn_sqlite-debug.exe
+          ls -l nwn_sqlite-debug.exe
+          file nwn_sqlite-debug.exe
 
       - name: Upload Windows debug artifact
         uses: actions/upload-artifact@v2
         with:
-          name: debug.mod2sqlite.windows.amd64.static
-          path: mod2sqlite-debug.exe
+          name: debug.nwn_sqlite.windows.amd64.static
+          path: nwn_sqlite-debug.exe
 
       - name: Compile for Linux
         run: |
           PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" VERSION=`git rev-parse --short HEAD` nimble musl
-          ls -l mod2sqlite
-          file mod2sqlite
+          ls -l nwn_sqlite
+          file nwn_sqlite
 
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v2
         with:
-          name: mod2sqlite.linux.amd64.static
-          path: mod2sqlite
+          name: nwn_sqlite.linux.amd64.static
+          path: nwn_sqlite
 
       - name: Compile debug build for Linux
         run: |
-          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" VERSION=`git rev-parse --short HEAD` nimble build --gcc.exe:musl-gcc --gcc.linkerexe:musl-gcc --passL:-static --dynlibOverrideAll --passL:sqlite3.a mod2sqlite
-          mv mod2sqlite mod2sqlite-debug
-          ls -l mod2sqlite-debug
-          file mod2sqlite-debug
+          PATH="$PWD/nim/nim-$NIMVER/bin:$PATH" VERSION=`git rev-parse --short HEAD` nimble build --gcc.exe:musl-gcc --gcc.linkerexe:musl-gcc --passL:-static --dynlibOverrideAll --passL:sqlite3.a nwn_sqlite
+          mv nwn_sqlite nwn_sqlite-debug
+          ls -l nwn_sqlite-debug
+          file nwn_sqlite-debug
 
       - name: Upload Linux debug artifact
         uses: actions/upload-artifact@v2
         with:
-          name: debug.mod2sqlite.linux.amd64.static
-          path: mod2sqlite-debug
+          name: debug.nwn_sqlite.linux.amd64.static
+          path: nwn_sqlite-debug
 
   build-macos:
     runs-on: macos-latest
@@ -120,23 +120,23 @@ jobs:
       - name: Compile for macOS
         run: |
           VERSION=`git rev-parse --short HEAD` nimble macos
-          ls -l mod2sqlite
-          file mod2sqlite
+          ls -l nwn_sqlite
+          file nwn_sqlite
 
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v2
         with:
-          name: mod2sqlite.macos.amd64
-          path: mod2sqlite
+          name: nwn_sqlite.macos.amd64
+          path: nwn_sqlite
 
       - name: Compile debug build for macOS
         run: |
-          VERSION=`git rev-parse --short HEAD` nimble build --dynlibOverride:sqlite3 --passL:macsqlite3.a mod2sqlite
-          ls -l mod2sqlite
-          file mod2sqlite
+          VERSION=`git rev-parse --short HEAD` nimble build --dynlibOverride:sqlite3 --passL:macsqlite3.a nwn_sqlite
+          ls -l nwn_sqlite
+          file nwn_sqlite
 
       - name: Upload macOS artifact
         uses: actions/upload-artifact@v2
         with:
-          name: debug.mod2sqlite.macos.amd64
-          path: mod2sqlite
+          name: debug.nwn_sqlite.macos.amd64
+          path: nwn_sqlite

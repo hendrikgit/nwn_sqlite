@@ -1,5 +1,5 @@
-/mod2sqlite
-/mod2sqlite.exe
+/nwn_sqlite
+/nwn_sqlite.exe
 /sqlite3.[c|o|a]
 /winsqlite3.[o|a]
 /sqlite-amalgamation-*
