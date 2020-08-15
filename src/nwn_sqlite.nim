@@ -4,7 +4,8 @@ import creature, db, helper
 
 const version = getEnv("VERSION")
 
-if paramCount() == 0 or not commandLineParams().anyIt it.startsWith("-o:"):
+let paths = commandLineParams().filterIt(not it.startsWith("-"))
+if paths.len == 0 or not commandLineParams().anyIt it.startsWith("-o:"):
   echo &"""
 (Version: {version})
 Please provide one or more directories or files as parameters.
@@ -25,7 +26,7 @@ Existing tables will be overwritten.
 
 let
   dbName = commandLineParams().findIt(it.startsWith("-o:")).get[3 .. ^1]
-  dataFiles = commandLineParams().filterIt(not it.startsWith("-o:")).getDataFiles
+  dataFiles = paths.getDataFiles
   rm = newResMan() # container added last to resman will be queried first
 
 let dlgPath = dataFiles.findIt it.endsWith("dialog.tlk")
