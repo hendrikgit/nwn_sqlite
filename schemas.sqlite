@@ -2,3 +2,4 @@
 .mode column
 .width 3 24 7 1 1 1
 pragma table_info('creatures');
+pragma table_info('items');

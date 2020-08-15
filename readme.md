@@ -52,36 +52,40 @@ sqlite3 dbname.sqlite3 < schemas.sqlite | sed -r 's/.{9}$//'
 ```
 [schemas.sqlite](schemas.sqlite) contains the commands to generate the table info.
 
+Tables
+* [creatures](#creatures)
+* [items](#items)
+
 ### creatures
 ```
-cid  name                      type   
+cid  name                      type
 ---  ------------------------  -------
 0    id                        integer
-1    name                      text   
-2    resref                    text   
-3    tag                       text   
+1    name                      text
+2    resref                    text
+3    tag                       text
 4    cr                        integer
 5    cr_adjust                 integer
 6    hp                        integer
 7    level                     integer
-8    class1                    text   
+8    class1                    text
 9    class1_id                 integer
 10   class1_level              integer
-11   class2                    text   
+11   class2                    text
 12   class2_id                 integer
 13   class2_level              integer
-14   class3                    text   
+14   class3                    text
 15   class3_id                 integer
 16   class3_level              integer
-17   faction                   text   
+17   faction                   text
 18   faction_id                integer
-19   parent_faction            text   
+19   parent_faction            text
 20   parent_faction_id         integer
-21   race                      text   
+21   race                      text
 22   race_id                   integer
-23   gender                    text   
+23   gender                    text
 24   gender_id                 integer
-25   alignment                 text   
+25   alignment                 text
 26   alignment_lawful_chaotic  integer
 27   alignment_good_evil       integer
 28   natural_ac                integer
@@ -98,6 +102,28 @@ cid  name                      type
 39   plot                      integer
 40   interruptable             integer
 41   walk_rate                 integer
-42   conversation              text   
+42   conversation              text
 43   comment                   text
+```
+
+### items
+```
+cid  name                      type
+---  ------------------------  -------
+0    id                        integer
+1    name                      text
+2    resref                    text
+3    tag                       text
+4    base_item                 text
+5    base_item_id              integer
+6    identified                integer
+7    stack_size                integer
+8    stacking_baseitems        integer
+9    charges                   integer
+10   cost                      integer
+11   add_cost                  integer
+12   cursed                    integer
+13   plot                      integer
+14   stolen                    integer
+15   comment                   text
 ```
