@@ -75,27 +75,13 @@ proc name(a: Alignment): string =
   of 0 .. 30: "E"
   if lc == ge: "TN" else: lc & ge
 
-proc parentFactionTable(repute: GffRoot): Table[int, int] =
-  for fac in repute["FactionList", GffList]:
-    let pId = fac["FactionParentID", GffDword]
-    if pId == GffDword.high:
-      result[fac.id] = fac.id
-    else:
-      result[fac.id] = pId.int
-
-proc factionNameTable(repute: GffRoot): Table[int, string] =
-  for fac in repute["FactionList", GffList]:
-    result[fac.id] = fac["FactionName", GffCExoString]
-
 proc creatureList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[SingleTlk]): seq[Creature] =
   let
     isMod = rm[newResRef("module", "ifo".getResType)].isSome
     classes2da = rm.get2da("classes")
     racialtypes = rm.get2da("racialtypes")
     gender = rm.get2da("gender")
-    reputeGffRoot = if isMod: some rm.getGffRoot("repute", "fac") else: none GffRoot
-    parentFactions = if isMod: some reputeGffRoot.get.parentFactionTable else: none Table[int, int]
-    factionNames = if isMod: some reputeGffRoot.get.factionNameTable else: none Table[int, string]
+    factionInfo = if isMod: rm.getGffRoot("repute", "fac").toFactionInfo else: FactionInfo()
   var
     crs: Table[string, int]
     palcusInfo: PalcusInfo
@@ -109,10 +95,10 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[Si
     let
       utc = rm.getGffRoot(rr)
       paletteId = utc["PaletteID", 0.GffByte].int
-      factionId = utc["FactionID", GffWord].int
-      factionName = if isMod: factionNames.get[factionId] else: ""
-      parentFactionId = if isMod: parentFactions.get[factionId] else: -1
-      parentFactionName = if isMod: factionNames.get[parentFactionId] else: ""
+      factionId = utc["FactionID", 0.GffWord].int
+      factionName = factionInfo.names.getOrDefault(factionId, "")
+      parentFactionId = factionInfo.parents.getOrDefault(factionId, -1)
+      parentFactionName = factionInfo.names.getOrDefault(parentFactionId, "")
       classInfo = utc["ClassList", GffList].toClassInfo(classes2da, dlg, tlk)
       alignment = Alignment(lawfulChaotic: utc["LawfulChaotic", GffByte], goodEvil: utc["GoodEvil", GffByte])
     result &= Creature(

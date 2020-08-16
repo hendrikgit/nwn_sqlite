@@ -6,6 +6,10 @@ const dataFileExtensions = [".2da", ".bif", ".hak", ".key", ".mod", ".tlk", ".ut
 type
   PalcusInfo* = Table[int, tuple[name: string, full: string]]
 
+  FactionInfo* = object
+    names*: Table[int, string]
+    parents*: Table[int, int]
+
 template findIt*(s, pred: untyped): untyped =
   var result: Option[type(s[0])]
   for it {.inject.} in s.items:
@@ -115,3 +119,12 @@ proc toPalcusInfo*(list: GffList, dlg: SingleTlk, tlk: Option[SingleTlk], parent
         result[li["ID", GffByte].int] = (name, parentsNew)
       for k, v in toPalcusInfo(li["LIST", GffList], dlg, tlk, parentsNew):
         result[k] = v
+
+proc toFactionInfo*(repute: GffRoot): FactionInfo =
+  for fac in repute["FactionList", GffList]:
+    result.names[fac.id] = fac["FactionName", GffCExoString]
+    let pId = fac["FactionParentID", GffDword]
+    if pId == GffDword.high:
+      result.parents[fac.id] = fac.id
+    else:
+      result.parents[fac.id] = pId.int
