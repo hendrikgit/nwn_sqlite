@@ -41,4 +41,7 @@ proc placeableList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[S
       faction_id: factionId,
       parentFaction: parentFactionName,
       parentFactionId: parentFactionId,
+      plot: utp["Plot", 0.GffByte].int,
+      conversation: $utp["Conversation", GffResRef],
+      comment: utp["Comment", ""],
     )
