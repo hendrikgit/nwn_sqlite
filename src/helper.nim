@@ -1,5 +1,6 @@
 import os, options, sequtils, streams, strutils, tables
-import neverwinter/[erf, gff, resfile, resman, tlk, twoda]
+import neverwinter/[erf, gff, resman, tlk, twoda]
+import resfilecontainer
 
 const dataFileExtensions = [".2da", ".bif", ".hak", ".key", ".mod", ".tlk", ".utc", ".uti", ".utp"]
 
@@ -28,9 +29,10 @@ proc addFiles*(rm: ResMan, files: seq[string], filterExtensions = newSeq[string]
     for ext in filterExtensions:
       let count = filesToAdd.countIt it.endsWith(ext)
       if count > 0: echo " " & ext & ": " & $count
-    for f in filesToAdd:
-      if filesToAdd.len <= 10: echo "  " & f
-      rm.add f.newResFile
+      if filesToAdd.len <= 10:
+        for f in filesToAdd:
+          echo "  " & f
+    rm.add filesToAdd.newResFileContainer
 
 proc flatten*(list: GffList): GffList =
   for li in list:
