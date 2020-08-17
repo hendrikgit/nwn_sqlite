@@ -8,7 +8,7 @@ bin           = @["nwn_sqlite"]
 
 # Dependencies
 requires "nim == 1.2.6"
-requires "neverwinter == 1.2.10"
+requires "neverwinter == 1.3.1"
 
 task getsqlite3, "Download amalgamated sqlite3.c source from https://www.sqlite.org":
   const
