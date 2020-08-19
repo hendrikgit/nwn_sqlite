@@ -7,6 +7,17 @@ type
     height, width: int
     flags: int
     flags_interior, flags_underground, flags_natural: bool
+    no_rest: bool
+    player_vs_player: int
+    tileset: string
+    on_enter, on_exit: string
+    load_screen_id: int
+    is_night: bool
+    day_night_cycle: int
+    chance_lightning, chance_rain, chance_snow: int
+    wind_power: int
+    fog_clip_dist: float
+    mod_listen_check, mod_spot_check: int
     comments: string
 
   AreaFlag {.size: 4.} = enum
@@ -35,5 +46,20 @@ proc areaList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[Single
       flagsInterior: flags.contains(areaInterior),
       flagsUnderground: flags.contains(areaUnderground),
       flagsNatural: flags.contains(areaNatural),
+      noRest: are["NoRest", 0.GffByte].bool,
+      playerVsPlayer: are["PlayerVsPlayer", 0.GffByte].int,
+      tileset: $are["Tileset", GffResRef],
+      onEnter: $are["OnEnter", GffResRef],
+      onExit: $are["OnExit", GffResRef],
       comments: are["Comments", ""],
+      loadScreenID: are["LoadScreenID", 0.GffWord].int,
+      isNight: are["IsNight", 0.GffByte].bool,
+      dayNightCycle: are["DayNightCycle", 0.GffByte].int,
+      chanceLightning: are["ChanceLightning", GffInt],
+      chanceRain: are["ChanceRain", 0.GffInt],
+      chanceSnow: are["ChanceSnow", 0.GffInt],
+      windPower: are["WindPower", 0.GffInt],
+      fogClipDist: are["FogClipDist", 0.GffFloat],
+      modListenCheck: are["ModListenCheck", 0.GffInt],
+      modSpotCheck: are["ModSpotCheck", 0.GffInt],
     )

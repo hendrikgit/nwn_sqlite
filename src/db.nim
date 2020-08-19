@@ -12,11 +12,13 @@ proc writeTable*[T](s: seq[T], filename, tablename: string) =
   if s.len == 0: return
   var cols = newSeq[tuple[name, coltype: string]]()
   for k, v in s[0].fieldPairs:
-    if v is int | bool:
+    if v is bool | int:
       cols &= (k, "integer")
+    if v is float:
+      cols &= (k, "real")
     elif v is string:
       cols &= (k, "text")
-    when v isnot int | string | bool:
+    when v isnot bool| float| int | string:
       {.fatal: "Handling of this type not implemented.".}
   createTable(db, tablename, cols)
   db.exec(sql"begin transaction")
