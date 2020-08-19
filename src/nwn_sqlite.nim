@@ -1,5 +1,5 @@
-import os, sequtils, streams, strformat, strutils
-import neverwinter/[gff, key, resfile, resman, tlk]
+import encodings, os, sequtils, streams, strformat, strutils
+import neverwinter/[gff, key, resfile, resman, tlk, util]
 import area, creature, db, helper, item, placeable
 
 const version = getEnv("VERSION")
@@ -19,6 +19,8 @@ add the path to them (or a directory with .key, .bif) as further parameters.
 
 Use:
   -o:dbname.sqlite3        to specify the name of the output database file.
+  -e:encoding              to specify the encoding of the input
+                           (for example "cp1251" for Cyrillic)
 
 Existing tables will be overwritten.
 """
@@ -26,8 +28,19 @@ Existing tables will be overwritten.
 
 let
   dbName = commandLineParams().findIt(it.startsWith("-o:")).get[3 .. ^1]
+  encodingParam = commandLineParams().findIt(it.startsWith("-e:"))
   dataFiles = paths.getDataFiles
   rm = newResMan() # container added last to resman will be queried first
+
+if encodingParam.isSome:
+  let encoding = encodingParam.get[3 .. ^1]
+  # try encoding here so a more helpful error message can be given
+  try:
+    discard convert("test", srcEncoding = encoding)
+  except:
+    echo "Error with the chosen encoding: " & encoding
+    quit(QuitFailure)
+  setNwnEncoding(encoding)
 
 let dlgPath = dataFiles.findIt it.endsWith("dialog.tlk")
 if dlgPath.isSome:
