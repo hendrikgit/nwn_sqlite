@@ -27,10 +27,10 @@ proc addFiles*(rm: ResMan, files: seq[string], filterExtensions = newSeq[string]
   if filesToAdd.len > 0:
     echo "Adding " & $filesToAdd.len & " files"
     for ext in filterExtensions:
-      let count = filesToAdd.countIt it.endsWith(ext)
-      if count > 0: echo " " & ext & ": " & $count
-      if filesToAdd.len <= 10:
-        for f in filesToAdd:
+      let extFiles = filesToAdd.filterIt it.endsWith(ext)
+      if extFiles.len > 0: echo " " & ext[1 .. ^1] & ": " & $extFiles.len
+      if extFiles.len <= 10:
+        for f in extFiles:
           echo "  " & f
     rm.add filesToAdd.newResFileContainer
 
