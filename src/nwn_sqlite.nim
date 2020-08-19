@@ -1,6 +1,6 @@
 import os, sequtils, streams, strformat, strutils
 import neverwinter/[gff, key, resfile, resman, tlk]
-import creature, db, helper, item, placeable
+import area, creature, db, helper, item, placeable
 
 const version = getEnv("VERSION")
 
@@ -10,7 +10,7 @@ if paths.len == 0 or not commandLineParams().anyIt it.startsWith("-o:"):
 (Version: {version})
 Please provide one or more directories or files as parameters.
 All directories given will be searched for the following files:
-.2da, .bif, .hak, .key, .tlk, .utc., .uti, .utp
+.2da, .are, .bif, .hak, .key, .tlk, .utc., .uti, .utp
 
 Subdirectories are ignored.
 
@@ -83,9 +83,10 @@ for hak in dataFiles.filterIt it.endsWith(".hak"):
   echo "Adding hak: " & hak
   rm.add(hak.getErf("HAK "))
 
-rm.addFiles(dataFiles, @[".2da", ".utc", ".uti", ".utp"])
+rm.addFiles(dataFiles, @[".2da", ".are", ".utc", ".uti", ".utp"])
 
 var
+  ares = newSeq[ResRef]()
   utcs = newSeq[ResRef]()
   utis = newSeq[ResRef]()
   utps = newSeq[ResRef]()
@@ -94,6 +95,8 @@ for container in rm.containers:
   if container of KeyTable: continue
   for rr in container.contents:
     let restype = rr.resType
+    if restype == "are".getResType:
+      ares &= rr
     if restype == "utc".getResType:
       utcs &= rr
     elif restype == "uti".getResType:
@@ -112,3 +115,7 @@ items.writeTable(dbName, "items")
 echo "\nPlaceables (utp) found: " & $utps.len
 let placeables = utps.placeableList(rm, dlg, cTlk)
 placeables.writeTable(dbName, "placeables")
+
+echo "\nAreas (are) found: " & $ares.len
+let areas = ares.areaList(rm, dlg, cTlk)
+areas.writeTable(dbName, "areas")
