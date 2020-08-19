@@ -55,6 +55,7 @@ sqlite3 dbname.sqlite3 < schemas.sqlite | sed -r 's/.{9}$//'
 Tables
 * [creatures](#creatures)
 * [items](#items)
+* [placeables](#placeables)
 
 ### creatures
 ```
@@ -132,4 +133,46 @@ cid  name                      type
 16   plot                      integer
 17   stolen                    integer
 18   comment                   text
+```
+
+### placeables
+```
+cid  name                      type
+---  ------------------------  -------
+0    id                        integer
+1    name                      text
+2    resref                    text
+3    tag                       text
+4    palette                   text
+5    palette_full              text
+6    palette_id                integer
+7    faction                   text
+8    faction_id                integer
+9    parent_faction            text
+10   parent_faction_id         integer
+11   static                    integer
+12   plot                      integer
+13   useable                   integer
+14   has_inventory             integer
+15   hp                        integer
+16   hardness                  integer
+17   fort                      integer
+18   will                      integer
+19   locked                    integer
+20   lockable                  integer
+21   key_required              integer
+22   key_name                  text
+23   open_lock_dc              integer
+24   close_lock_dc             integer
+25   disarm_dc                 integer
+26   interruptable             integer
+27   trap_detectable           integer
+28   trap_detect_dc            integer
+29   trap_disarmable           integer
+30   trap_flag                 integer
+31   trap_one_shot             integer
+32   trap_type                 text
+33   trap_type_id              integer
+34   conversation              text
+35   comment                   text
 ```
