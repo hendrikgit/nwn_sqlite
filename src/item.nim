@@ -4,15 +4,15 @@ import helper
 
 type
   Item = object
-    name, resref, tag: string
-    base_item: string
-    base_item_id: int
-    palette, palette_full: string
-    palette_id: int
+    localizedName, templateResRef, tag: string
+    baseItem: int
+    xBaseItemName: string
+    paletteID: int
+    xPalette, xPaletteFull: string
     identified: int
-    stack_size, stacking_baseitems: int
+    stackSize, xStackingBaseitems2da: int
     charges: int
-    cost, add_cost: int
+    cost, addCost: int
     cursed: int
     plot: int
     stolen: int
@@ -32,17 +32,17 @@ proc itemList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[Single
       baseItem = baseitems2da[baseItemId, "Name"].get.tlkText(dlg, tlk)
       paletteId = uti["PaletteID", 0.GffByte].int
     result &= Item(
-      name: uti["LocalizedName", GffCExoLocString].getStr(dlg, tlk),
-      resref: rr.resRef,
+      localizedName: uti["LocalizedName", GffCExoLocString].getStr(dlg, tlk),
+      templateResRef: rr.resRef,
       tag: uti["Tag", ""],
-      baseItemId: baseItemId,
-      baseItem: baseItem,
-      palette: palcusInfo.getOrDefault(paletteId).name,
-      paletteFull: palcusInfo.getOrDefault(paletteId).full,
+      baseItem: baseItemId,
+      xBaseItemName: baseItem,
+      xPalette: palcusInfo.getOrDefault(paletteId).name,
+      xPaletteFull: palcusInfo.getOrDefault(paletteId).full,
       paletteId: paletteId,
       identified: uti["Identified", 0.GffByte].int,
       stackSize: uti["StackSize", 0.GffWord].int,
-      stackingBaseitems: baseitems2da[baseItemId, "Stacking"].get.parseInt,
+      xStackingBaseitems2da: baseitems2da[baseItemId, "Stacking"].get.parseInt,
       charges: uti["Charges", 0.GffByte].int,
       cost: uti["Cost", 0.GffDword].int,
       addCost: uti["AddCost", 0.GffDword].int,
