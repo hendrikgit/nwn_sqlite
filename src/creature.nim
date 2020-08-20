@@ -46,6 +46,9 @@ type
     lawfulChaotic, goodEvil: AlignmentRange
 
 proc toClassInfo(classList: GffList, classes2da: TwoDA, dlg: SingleTlk, tlk: Option[SingleTlk]): ClassInfo =
+  result.id1 = -1
+  result.id2 = -1
+  result.id3 = -1
   if classList.len >= 1:
     result.id1 = classList[0]["Class", GffInt]
     result.name1 = classes2da[result.id1, "Name"].get.tlkText(dlg, tlk)
