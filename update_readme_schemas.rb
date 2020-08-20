@@ -2,7 +2,7 @@
 
 tables = File.read('schemas.sqlite').scan(/^pragma table_info\('(\w+)'\);/).flatten
 
-schemas_md = "Tables\n" + tables.map{|t| "* [#{t}](##{t})"}.join("\n") + "\n\n"
+schemas_md = "**Tables**\n" + tables.map{|t| "* [#{t}](##{t})"}.join("\n") + "\n\n"
 
 input = ARGF.read
 idx = 0
@@ -14,8 +14,8 @@ for line in input.lines
   end
   schemas_md += line.sub(/ +$/, '')
 end
-schemas_md += '```'
+schemas_md += "```\n"
 
-File.write('readme.md', File.read('readme.md').sub(/^Tables.*/m, schemas_md))
+File.write('readme.md', File.read('readme.md').sub(/^\*\*Tables\*\*.*/m, schemas_md))
 
 puts "readme.md updated"

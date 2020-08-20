@@ -147,8 +147,8 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[Si
       walkRate: utc["WalkRate", 0.GffInt],
     )
     for k, v in creature.fieldPairs:
-      let label = k.capitalizeAscii
       when v is int:
+        let label = k.capitalizeAscii
         case label
         of "Race", "Gender", "NaturalAC", "Str", "Dex", "Con", "Int", "Wis", "Cha",
             "Lootable", "Disarmable", "IsImmortal", "NoPermDeath", "Plot", "Interruptable":
