@@ -59,7 +59,7 @@ proc areaList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[
       fogClipDist: are["FogClipDist", 0.GffFloat],
     )
     for k, v in area.fieldPairs:
-      let label = k.capitalizeAscii
+      let label {.used.} = k.capitalizeAscii
       when v is int:
         case label
         of "NoRest", "PlayerVsPlayer", "IsNight", "DayNightCycle":
