@@ -89,15 +89,15 @@ proc name(a: Alignment): string =
 
 proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[Creature] =
   let
-    isMod = rm[newResRef("module", "ifo".getResType)].isSome
     classes2da = rm.get2da("classes")
     racialtypes2da = rm.get2da("racialtypes")
     gender2da = rm.get2da("gender")
-    factionInfo = if isMod: rm.getGffRoot("repute", "fac").toFactionInfo else: FactionInfo()
+    factionInfo = if rm.contains(newResRef("repute", "fac".getResType)):
+      rm.getGffRoot("repute", "fac").toFactionInfo else: FactionInfo()
   var
     crs: Table[string, int]
     palcusInfo: PalcusInfo
-  if isMod:
+  if rm.contains(newResRef("creaturepalcus", "itp".getResType)):
     let creaturepalcus = rm.getGffRoot("creaturepalcus", "itp")["MAIN", GffList]
     for c in creaturepalcus.flatten:
       if not c.hasField("RESREF", GffResRef): continue

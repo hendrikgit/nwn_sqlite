@@ -1,5 +1,5 @@
 import encodings, os, sequtils, streams, strformat, strutils
-import neverwinter/[gff, key, resfile, resman, tlk, util]
+import neverwinter/[gff, key, resman, tlk, util]
 import area, creature, db, helper, item, placeable
 
 const version = getEnv("VERSION")
@@ -93,7 +93,10 @@ for hak in dataFiles.filterIt it.endsWith(".hak"):
   echo "Adding hak: " & hak
   rm.add(hak.getErf("HAK "))
 
-rm.addFiles(dataFiles, @[".2da", ".are", ".git", ".utc", ".uti", ".utp"])
+rm.addFiles(
+  dataFiles,
+  dataFileExtensions.filterIt it notin [".bif", ".hak", ".key", ".mod", ".tlk"]
+)
 
 var
   ares = newSeq[ResRef]()
@@ -114,18 +117,23 @@ for container in rm.containers:
     elif restype == "utp".getResType:
       utps &= rr
 
-echo "\nCreatures (utc) found: " & $utcs.len
+if utcs.len > 0:
+  echo "Creatures (utc) found: " & $utcs.len
+# writeTable with empty list will remove the table
 let creatures = utcs.creatureList(rm, dlg, cTlk)
 creatures.writeTable(dbName, "creatures")
 
-echo "\nItems (uti) found: " & $utis.len
+if utis.len > 0:
+  echo "Items (uti) found: " & $utis.len
 let items = utis.itemList(rm, dlg, cTlk)
 items.writeTable(dbName, "items")
 
-echo "\nPlaceables (utp) found: " & $utps.len
+if utps.len > 0:
+  echo "Placeables (utp) found: " & $utps.len
 let placeables = utps.placeableList(rm, dlg, cTlk)
 placeables.writeTable(dbName, "placeables")
 
-echo "\nAreas (are) found: " & $ares.len
+if ares.len > 0:
+  echo "Areas (are) found: " & $ares.len
 let areas = ares.areaList(rm, dlg, cTlk)
 areas.writeTable(dbName, "areas")

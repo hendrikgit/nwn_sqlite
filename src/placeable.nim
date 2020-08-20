@@ -27,9 +27,10 @@ type
 
 proc placeableList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[Placeable] =
   let
-    isMod = rm[newResRef("module", "ifo".getResType)].isSome
-    palcusInfo = if isMod: rm.getGffRoot("placeablepalcus", "itp")["MAIN", GffList].toPalcusInfo(dlg, tlk) else: PalcusInfo()
-    factionInfo = if isMod: rm.getGffRoot("repute", "fac").toFactionInfo else: FactionInfo()
+    palcusInfo = if rm.contains(newResRef("placeablepalcus", "itp".getResType)):
+      rm.getGffRoot("placeablepalcus", "itp")["MAIN", GffList].toPalcusInfo(dlg, tlk) else: PalcusInfo()
+    factionInfo = if rm.contains(newResRef("repute", "fac".getResType)):
+      rm.getGffRoot("repute", "fac").toFactionInfo else: FactionInfo()
     traps2da = rm.get2da("traps")
   for rr in list:
     let

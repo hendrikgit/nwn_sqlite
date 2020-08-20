@@ -20,9 +20,8 @@ type
 
 proc itemList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[Item] =
   let baseitems2da = rm.get2da("baseitems")
-  let isMod = rm[newResRef("module", "ifo".getResType)].isSome
   var palcusInfo: PalcusInfo
-  if isMod:
+  if rm.contains(newResRef("itempalcus", "itp".getResType)):
     let itempalcus = rm.getGffRoot("itempalcus", "itp")
     palcusInfo = toPalcusInfo(itempalcus["MAIN", GffList], dlg, tlk)
   for rr in list:
