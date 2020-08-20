@@ -1,4 +1,4 @@
-import strutils
+import strutils, tables
 import neverwinter/[gff, resman, tlk]
 import helper
 
@@ -20,6 +20,8 @@ type
     fogClipDist: float
     modListenCheck, modSpotCheck: int
     comments: string
+    ambientSndDay, ambientSndDayVol, ambientSndNight, ambientSndNitVol: int
+    envAudio, musicBattle, musicDay, musicDelay, musicNight: int
 
   AreaFlag {.size: 4.} = enum
     areaInterior = "interior" # exterior if unset
@@ -35,8 +37,13 @@ proc areaList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[Single
   for rr in list:
     let
       are = rm.getGffRoot(rr)
+      gitrr = newResRef(rr.resRef, "git".getResType)
       flag = are["Flags", 0.GffDword].int
       flags = flag.toFlags
+    var gitAreaProps = newTable[string, GffField]()
+    if rm.contains(gitrr):
+      let git = rm.getGffRoot(gitrr)
+      gitAreaProps = git["AreaProperties", GffStruct].fields
     var area = Area(
       name: are["Name", GffCExoLocString].getStr(dlg, tlk),
       resref: rr.resRef,
@@ -58,6 +65,9 @@ proc areaList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[Single
         of "Height", "Width", "ChanceLightning", "ChanceRain", "ChanceSnow",
             "WindPower", "ModListenCheck", "ModSpotCheck":
           v = are[label, -1.GffInt]
+        of "AmbientSndDay", "AmbientSndDayVol", "AmbientSndNight", "AmbientSndNitVol",
+            "EnvAudio", "MusicBattle", "MusicDay", "MusicDelay", "MusicNight":
+          if gitAreaProps.hasKey(label): v = gitAreaProps[label].getValue(GffInt)
       when v is string:
         case label
         of "Tileset", "OnEnter", "OnExit":

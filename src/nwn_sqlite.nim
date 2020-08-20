@@ -9,12 +9,12 @@ if paths.len == 0 or not commandLineParams().anyIt it.startsWith("-o:"):
   echo &"""
 (Version: {version})
 Please provide one or more directories or files as parameters.
-All directories given will be searched for the following files:
-.2da, .are, .bif, .hak, .key, .tlk, .utc., .uti, .utp
-
 Subdirectories are ignored.
 
-A dialog.tlk and various .2da files will be needed as well,
+File types that will be read (directly or in a directory):
+{dataFileExtensions.join(", ")}
+
+A dialog.tlk and various .2da files will be needed,
 add the path to them (or a directory with .key, .bif) as further parameters.
 
 Use:
@@ -96,7 +96,7 @@ for hak in dataFiles.filterIt it.endsWith(".hak"):
   echo "Adding hak: " & hak
   rm.add(hak.getErf("HAK "))
 
-rm.addFiles(dataFiles, @[".2da", ".are", ".utc", ".uti", ".utp"])
+rm.addFiles(dataFiles, @[".2da", ".are", ".git", ".utc", ".uti", ".utp"])
 
 var
   ares = newSeq[ResRef]()
