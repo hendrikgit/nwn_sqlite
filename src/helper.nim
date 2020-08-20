@@ -53,12 +53,11 @@ proc flatten*(list: GffList): GffList =
     else:
       result &= li
 
-proc get2da*(rm: ResMan, name: string): TwoDA =
+proc get2da*(rm: ResMan, name: string): Option[TwoDA] =
   if rm.contains(newResRef(name, "2da".getResType)):
-    result = rm[newResRef(name, "2da".getResType)].get.readAll.newStringStream.readTwoDA
+    return some rm[newResRef(name, "2da".getResType)].get.readAll.newStringStream.readTwoDA
   else:
-    echo name & ".2da not found"
-    quit(QuitFailure)
+    echo "Warning: 2da not found: " & name & ".2da"
 
 proc getDataFiles*(paths: seq[string]): seq[string] =
   for path in paths:
@@ -98,29 +97,30 @@ proc getGffRoot*(rm: ResMan, resref: ResRef): GffRoot =
 proc getGffRoot*(rm: ResMan, resref, restype: string): GffRoot =
   getGffRoot(rm, newResRef(resref, restype.getResType))
 
-proc tlkText*(strref: StrRef, dlg: SingleTlk, tlk: Option[SingleTlk]): string =
-  if strref < 0x01_000_000:
-    if dlg[strref].isSome:
-      return dlg[strref].get.text
-  elif tlk.isSome:
+proc tlkText*(strref: StrRef, dlg, tlk: Option[SingleTlk]): string =
+  if dlg.isSome and strref < 0x01_000_000:
+    let entry = dlg.get[strref]
+    if entry.isSome:
+      return entry.get.text
+  if tlk.isSome and strref >= 0x01_000_000:
     let entry = tlk.get[strref - 0x01_000_000]
     if entry.isSome:
       return entry.get.text
 
-proc tlkText*(strref: string, dlg: SingleTlk, tlk: Option[SingleTlk]): string =
+proc tlkText*(strref: string, dlg, tlk: Option[SingleTlk]): string =
   tlkText(strref.parseInt.StrRef , dlg, tlk)
 
-proc getStr*(locstr: GffCExoLocString, dlg: SingleTlk, tlk: Option[SingleTlk]): string =
+proc getStr*(locstr: GffCExoLocString, dlg, tlk: Option[SingleTlk]): string =
   if locstr.strRef != BadStrRef:
     return locstr.strRef.tlkText(dlg, tlk)
-  if locstr.entries.hasKey(dlg.language.ord):
-    return locstr.entries[dlg.language.ord]
+  if dlg.isSome and locstr.entries.hasKey(dlg.get.language.ord):
+    return locstr.entries[dlg.get.language.ord]
   if locstr.entries.hasKey(Language.English.ord):
     return locstr.entries[Language.English.ord]
   for value in locstr.entries.values:
     if value.len > 0: return value
 
-proc toPalcusInfo*(list: GffList, dlg: SingleTlk, tlk: Option[SingleTlk], parents = ""): PalcusInfo =
+proc toPalcusInfo*(list: GffList, dlg, tlk: Option[SingleTlk], parents = ""): PalcusInfo =
   for li in list:
     if li.hasField("LIST", GffList):
       var name = ""

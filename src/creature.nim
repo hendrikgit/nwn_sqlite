@@ -49,24 +49,27 @@ type
   Alignment = object
     lawfulChaotic, goodEvil: AlignmentRange
 
-proc toClassInfo(classList: GffList, classes2da: TwoDA, dlg: SingleTlk, tlk: Option[SingleTlk]): ClassInfo =
+proc toClassInfo(classList: GffList, classes2da: Option[TwoDA], dlg, tlk: Option[SingleTlk]): ClassInfo =
   result.id1 = -1
   result.id2 = -1
   result.id3 = -1
   if classList.len >= 1:
     result.id1 = classList[0]["Class", GffInt]
-    result.name1 = classes2da[result.id1, "Name"].get.tlkText(dlg, tlk)
+    if classes2da.isSome:
+      result.name1 = classes2da.get[result.id1, "Name", "0"].tlkText(dlg, tlk)
     result.level1 = classList[0]["ClassLevel", GffShort]
   if classList.len >= 2:
     result.id2 = classList[1]["Class", GffInt]
-    result.name2 = classes2da[result.id2, "Name"].get.tlkText(dlg, tlk)
+    if classes2da.isSome:
+      result.name2 = classes2da.get[result.id2, "Name", "0"].tlkText(dlg, tlk)
     result.level2 = classList[1]["ClassLevel", GffShort]
   if classList.len == 3:
     result.id3 = classList[2]["Class", GffInt]
-    result.name3 = classes2da[result.id3, "Name"].get.tlkText(dlg, tlk)
+    if classes2da.isSome:
+      result.name3 = classes2da.get[result.id3, "Name", "0"].tlkText(dlg, tlk)
     result.level3 = classList[2]["ClassLevel", GffShort]
 
-proc creatureName(utc: GffRoot, dlg: SingleTlk, tlk: Option[SingleTlk]): CreatureName =
+proc creatureName(utc: GffRoot, dlg, tlk: Option[SingleTlk]): CreatureName =
   result.first = utc["FirstName", GffCExoLocString].getStr(dlg, tlk)
   result.last = utc["LastName", GffCExoLocString].getStr(dlg, tlk)
   result.full = result.first
@@ -84,12 +87,12 @@ proc name(a: Alignment): string =
   of 0 .. 30: "E"
   if lc == ge: "TN" else: lc & ge
 
-proc creatureList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[SingleTlk]): seq[Creature] =
+proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[Creature] =
   let
     isMod = rm[newResRef("module", "ifo".getResType)].isSome
     classes2da = rm.get2da("classes")
-    racialtypes = rm.get2da("racialtypes")
-    gender = rm.get2da("gender")
+    racialtypes2da = rm.get2da("racialtypes")
+    gender2da = rm.get2da("gender")
     factionInfo = if isMod: rm.getGffRoot("repute", "fac").toFactionInfo else: FactionInfo()
   var
     crs: Table[string, int]
@@ -136,8 +139,8 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[Si
       xAlignment: alignment.name,
       lawfulChaotic: alignment.lawfulChaotic,
       goodEvil: alignment.goodEvil,
-      xRaceName: racialtypes[utc["Race", 0.GffByte], "Name"].get.tlkText(dlg, tlk),
-      xGenderName: gender[utc["Gender", 0.GffByte], "Name"].get.tlkText(dlg, tlk),
+      xRaceName: racialtypes2da.get(TwoDA())[utc["Race", 0.GffByte], "Name", "0"].tlkText(dlg, tlk),
+      xGenderName: gender2da.get(TwoDA())[utc["Gender", 0.GffByte], "Name", "0"].tlkText(dlg, tlk),
       tag: utc["Tag", GffCExoString],
       comment: utc["Comment", GffCExoString],
       conversation: $utc["Conversation", GffResRef],

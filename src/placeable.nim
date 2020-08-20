@@ -25,7 +25,7 @@ type
     conversation: string
     comment: string
 
-proc placeableList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[SingleTlk]): seq[Placeable] =
+proc placeableList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[Placeable] =
   let
     isMod = rm[newResRef("module", "ifo".getResType)].isSome
     palcusInfo = if isMod: rm.getGffRoot("placeablepalcus", "itp")["MAIN", GffList].toPalcusInfo(dlg, tlk) else: PalcusInfo()
@@ -56,7 +56,7 @@ proc placeableList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[S
       comment: utp["Comment", GffCExoString],
       keyName: utp["KeyName", GffCExoString],
       trapType: trapTypeId,
-      xTrapTypeName: traps2da[trapTypeId, "TrapName"].get.tlkText(dlg, tlk),
+      xTrapTypeName: traps2da.get(TwoDA())[trapTypeId, "TrapName", "0"].tlkText(dlg, tlk),
     )
     for k, v in placeable.fieldPairs:
       when v is int:

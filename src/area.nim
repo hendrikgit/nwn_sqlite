@@ -33,7 +33,7 @@ type
 proc toFlags(v: int): AreaFlags =
   cast[AreaFlags](v)
 
-proc areaList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[SingleTlk]): seq[Area] =
+proc areaList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[Area] =
   for rr in list:
     let
       are = rm.getGffRoot(rr)

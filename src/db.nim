@@ -19,7 +19,7 @@ proc writeTable*[T](s: seq[T], filename, tablename: string) =
       cols &= (name, "real")
     elif v is string:
       cols &= (name, "text")
-    when v isnot bool| float| int | string:
+    when v isnot bool | float | int | string:
       {.fatal: "Handling of this type not implemented.".}
   createTable(db, tablename, cols)
   db.exec(sql"begin transaction")

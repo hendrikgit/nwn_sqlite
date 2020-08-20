@@ -42,14 +42,13 @@ if encodingParam.isSome:
     quit(QuitFailure)
   setNwnEncoding(encoding)
 
+var dlg: Option[SingleTlk]
 let dlgPath = dataFiles.findIt it.endsWith("dialog.tlk")
 if dlgPath.isSome:
   echo "Adding dialog.tlk: " & dlgPath.get
-  rm.add(dlgPath.get.newResFile)
+  dlg = some dlgPath.get.openFileStream.readSingleTlk
 else:
-  echo "dialog.tlk not found"
-  quit(QuitFailure)
-let dlg = rm[newResRef("dialog", "tlk".getResType)].get.readAll.newStringStream.readSingleTlk
+  echo "Warning: dialog.tlk not found, some names and texts will be missing"
 
 for key in dataFiles.filterIt it.endsWith(".key"):
   echo "Adding key: " & key
@@ -83,13 +82,11 @@ if modFiles.len > 0:
       echo "Adding custom tlk: " & cTlkName & ".tlk"
       cTlk = some tlk.get.openFileStream.readSingleTlk
     else:
-      echo "Custom tlk file required by module not found: " & cTlkName & ".tlk"
-      quit(QuitFailure)
+      echo "Warning: Custom tlk file required by module not found: " & cTlkName & ".tlk"
   for hak in ifo["Mod_HakList", GffList]:
     let hakName = hak["Mod_Hak", GffCExoString] & ".hak"
     if dataFiles.filterIt(it.endsWith(hakName)).len == 0:
-      echo "Hak required by module not found: " & hakName
-      quit(QuitFailure)
+      echo "Warning: Hak required by module not found: " & hakName
   rm.add(module)
 
 for hak in dataFiles.filterIt it.endsWith(".hak"):
