@@ -27,7 +27,10 @@ proc writeTable*[T](s: seq[T], filename, tablename: string) =
   for el in s:
     var values = newSeq[string]()
     for _, v in el.fieldPairs:
-      values &= $v
+      when v is bool:
+        values &= $v.int
+      else:
+        values &= $v
     db.exec(sql(insertcols & " values (" & newSeqWith(values.len, "?").join(",") & ")"), values)
   db.exec(sql"commit")
   db.close
