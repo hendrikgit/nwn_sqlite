@@ -1,28 +1,27 @@
-import tables
+import tables, strutils
 import neverwinter/[gff, resman, tlk, twoda]
 import helper
 
 type
   Placeable = object
-    name, resref, tag: string
-    palette, palette_full: string
-    palette_id: int
-    faction: string
-    faction_id: int
-    parent_faction: string
-    parent_faction_id: int
+    locName, templateResRef, tag: string
+    paletteID: int
+    xPalette, xPaletteFull: string
+    faction: int
+    xParentFactionID: int
+    xFactionName, xParentFactionName: string
     `static`, plot, useable: int
-    has_inventory: int
-    hp, hardness: int
+    hasInventory: int
+    hP, hardness: int
     fort, will: int
-    locked, lockable, key_required: int
-    key_name: string
-    open_lock_dc, close_lock_dc: int
-    disarm_dc: int
+    locked, lockable, keyRequired: int
+    keyName: string
+    openLockDC, closeLockDC: int
+    disarmDC: int
     interruptable: int
-    trap_detectable, trap_detect_dc, trap_disarmable, trap_flag, trap_one_shot: int
-    trap_type: string
-    trap_type_id: int
+    trapDetectable, trapDetectDC, trapDisarmable, trapFlag, trapOneShot: int
+    trapType: int
+    xTrapTypeName: string
     conversation: string
     comment: string
 
@@ -41,40 +40,31 @@ proc placeableList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[S
       parentFactionId = factionInfo.parents.getOrDefault(factionId, -1)
       parentFactionName = factionInfo.names.getOrDefault(parentFactionId, "")
       trapTypeId = utp["TrapType", 0.GffByte].int
-    result &= Placeable(
-      name: utp["LocName", GffCExoLocString].getStr(dlg, tlk),
-      resref: rr.resRef,
-      tag: utp["Tag", ""],
-      palette: palcusInfo.getOrDefault(paletteId).name,
-      paletteFull: palcusInfo.getOrDefault(paletteId).full,
+    var placeable = Placeable(
+      locName: utp["LocName", GffCExoLocString].getStr(dlg, tlk),
+      templateResRef: rr.resRef,
+      tag: utp["Tag", GffCExoString],
       paletteId: paletteId,
-      faction: factionName,
-      factionId: factionId,
-      parentFaction: parentFactionName,
-      parentFactionId: parentFactionId,
-      `static`: utp["Static", 0.GffByte].int,
-      plot: utp["Plot", 0.GffByte].int,
-      useable: utp["Useable", 0.GffByte].int,
-      hasInventory: utp["HasInventory", 0.GffByte].int,
-      hp: utp["HP", GffShort],
-      hardness: utp["Hardness", 0.GffByte].int,
-      fort: utp["Fort", 0.GffByte].int,
-      will: utp["Will", 0.GffByte].int,
-      locked: utp["Locked", 0.GffByte].int,
-      lockable: utp["Lockable", 0.GffByte].int,
-      keyRequired: utp["KeyRequired", 0.GffByte].int,
-      keyName: utp["KeyName", ""],
-      openLockDc: utp["OpenLockDC", 0.GffByte].int,
-      closeLockDc: utp["CloseLockDC", 0.GffByte].int,
-      disarmDc: utp["DisarmDC", 0.GffByte].int,
-      interruptable: utp["Interruptable", 0.GffByte].int,
-      trapDetectable: utp["TrapDetectable", 0.GffByte].int,
-      trapDetectDc: utp["TrapDetectDC", 0.GffByte].int,
-      trapDisarmable: utp["TrapDisarmable", 0.GffByte].int,
-      trapFlag: utp["TrapFlag", 0.GffByte].int,
-      trapOneShot: utp["TrapOneShot", 0.GffByte].int,
-      trapType: traps2da[trapTypeId, "TrapName"].get.tlkText(dlg, tlk),
-      trapTypeId: trapTypeId,
+      xPalette: palcusInfo.getOrDefault(paletteId).name,
+      xPaletteFull: palcusInfo.getOrDefault(paletteId).full,
+      faction: factionId,
+      xParentFactionId: parentFactionId,
+      xFactionName: factionName,
+      xParentFactionName: parentFactionName,
+      hP: utp["HP", GffShort],
       conversation: $utp["Conversation", GffResRef],
-      comment: utp["Comment", ""],
+      comment: utp["Comment", GffCExoString],
+      keyName: utp["KeyName", GffCExoString],
+      trapType: trapTypeId,
+      xTrapTypeName: traps2da[trapTypeId, "TrapName"].get.tlkText(dlg, tlk),
     )
+    for k, v in placeable.fieldPairs:
+      when v is int:
+        let label = k.capitalizeAscii
+        case label
+        of "Static", "Plot", "Useable", "HasInventory", "Hardness", "Fort", "Will",
+            "Locked", "Lockable", "KeyRequired", "OpenLockDC", "CloseLockDC", "DisarmDC",
+            "Interruptable", "TrapDetectable", "TrapDetectDC", "TrapDisarmable", "TrapFlag",
+            "TrapOneShot":
+          v = utp[label, GffByte].int
+    result &= placeable
