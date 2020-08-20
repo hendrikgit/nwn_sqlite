@@ -4,7 +4,7 @@ import helper
 
 type
   Area = object
-    name, resRef, tag: string
+    name, xNameLowercase, resRef, tag: string
     height, width: int
     flags: int
     xFlagInterior, xFlagUnderground, xFlagNatural: bool
@@ -38,6 +38,7 @@ proc areaList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[
     let
       are = rm.getGffRoot(rr)
       gitrr = newResRef(rr.resRef, "git".getResType)
+      name = are["Name", GffCExoLocString].getStr(dlg, tlk)
       flag = are["Flags", 0.GffDword].int
       flags = flag.toFlags
     var gitAreaProps = newTable[string, GffField]()
@@ -45,7 +46,8 @@ proc areaList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[
       let git = rm.getGffRoot(gitrr)
       gitAreaProps = git["AreaProperties", GffStruct].fields
     var area = Area(
-      name: are["Name", GffCExoLocString].getStr(dlg, tlk),
+      name: name,
+      xNameLowercase: name.toLower,
       resref: rr.resRef,
       tag: are["Tag", GffCExoString],
       flags: flag,

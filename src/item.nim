@@ -4,7 +4,7 @@ import helper
 
 type
   Item = object
-    localizedName, templateResRef, tag: string
+    localizedName, xNameLowercase, templateResRef, tag: string
     baseItem: int
     xBaseItemName: string
     paletteID: int
@@ -27,11 +27,13 @@ proc itemList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[
   for rr in list:
     let
       uti = rm.getGffRoot(rr)
+      name = uti["LocalizedName", GffCExoLocString].getStr(dlg, tlk)
       baseItemId = uti["BaseItem", GffInt].int
       baseItem = baseitems2da.get(TwoDA())[baseItemId, "Name", "0"].tlkText(dlg, tlk)
       paletteId = uti["PaletteID", 0.GffByte].int
     result &= Item(
-      localizedName: uti["LocalizedName", GffCExoLocString].getStr(dlg, tlk),
+      localizedName: name,
+      xNameLowercase: name.toLower,
       templateResRef: rr.resRef,
       tag: uti["Tag", ""],
       baseItem: baseItemId,

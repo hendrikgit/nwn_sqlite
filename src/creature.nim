@@ -4,7 +4,7 @@ import helper
 
 type
   Creature = object
-    firstName, lastName, xName: string
+    firstName, lastName, xName, xNameLowercase: string
     templateResRef, tag: string
     paletteID: int
     xPalette, xPaletteFull: string
@@ -118,6 +118,7 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): 
       firstName: name.first,
       lastName: name.last,
       xName: name.full,
+      xNameLowercase: name.full.toLower,
       templateResRef: rr.resRef,
       paletteID: paletteId,
       xPalette: palcusInfo.getOrDefault(paletteId).name,

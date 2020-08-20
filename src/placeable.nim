@@ -4,7 +4,7 @@ import helper
 
 type
   Placeable = object
-    locName, templateResRef, tag: string
+    locName, xNameLowercase, templateResRef, tag: string
     paletteID: int
     xPalette, xPaletteFull: string
     faction: int
@@ -33,6 +33,7 @@ proc placeableList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]):
   for rr in list:
     let
       utp = rm.getGffRoot(rr)
+      name = utp["LocName", GffCExoLocString].getStr(dlg, tlk)
       paletteId = utp["PaletteID", 0.GffByte].int
       factionId = utp["Faction", 0.GffDword].int
       factionName = factionInfo.names.getOrDefault(factionId, "")
@@ -40,7 +41,8 @@ proc placeableList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]):
       parentFactionName = factionInfo.names.getOrDefault(parentFactionId, "")
       trapTypeId = utp["TrapType", 0.GffByte].int
     var placeable = Placeable(
-      locName: utp["LocName", GffCExoLocString].getStr(dlg, tlk),
+      locName: name,
+      xNameLowercase: name.toLower,
       templateResRef: rr.resRef,
       tag: utp["Tag", GffCExoString],
       paletteId: paletteId,
