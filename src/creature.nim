@@ -8,6 +8,8 @@ type
     templateResRef, tag: string
     paletteID: int
     xPalette, xPaletteFull: string
+    appearance_Type: int
+    xAppearance_TypeName: string
     challengeRating, cRAdjust: int
     maxHitPoints: int
     xLevel: int
@@ -89,6 +91,7 @@ proc name(a: Alignment): string =
 
 proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[Creature] =
   let
+    appearance2da = rm.get2da("appearance")
     classes2da = rm.get2da("classes")
     racialtypes2da = rm.get2da("racialtypes")
     gender2da = rm.get2da("gender")
@@ -107,6 +110,7 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): 
     let
       utc = rm.getGffRoot(rr)
       name = utc.creatureName(dlg, tlk)
+      appearance = utc["Appearance_Type", 0.GffWord].int
       paletteId = utc["PaletteID", 0.GffByte].int
       factionId = utc["FactionID", 0.GffWord].int
       factionName = factionInfo.names.getOrDefault(factionId, "")
@@ -120,6 +124,8 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): 
       xName: name.full,
       xNameLowercase: name.full.toLower,
       templateResRef: rr.resRef,
+      appearance_Type: appearance,
+      xAppearance_TypeName: appearance2da.get(TwoDA())[appearance, "STRING_REF", "0"].tlkText(dlg, tlk),
       paletteID: paletteId,
       xPalette: palcusInfo.getOrDefault(paletteId).name,
       xPaletteFull: palcusInfo.getOrDefault(paletteId).full,
