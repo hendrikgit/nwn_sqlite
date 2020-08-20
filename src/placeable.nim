@@ -1,5 +1,5 @@
 import tables, strutils
-import neverwinter/[gff, resman, tlk, twoda]
+import neverwinter/[gff, resman, tlk]
 import helper
 
 type
@@ -21,7 +21,6 @@ type
     interruptable: int
     trapDetectable, trapDetectDC, trapDisarmable, trapFlag, trapOneShot: int
     trapType: int
-    xTrapTypeName: string
     conversation: string
     comment: string
 
@@ -31,7 +30,6 @@ proc placeableList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]):
       rm.getGffRoot("placeablepalcus", "itp")["MAIN", GffList].toPalcusInfo(dlg, tlk) else: PalcusInfo()
     factionInfo = if rm.contains(newResRef("repute", "fac".getResType)):
       rm.getGffRoot("repute", "fac").toFactionInfo else: FactionInfo()
-    traps2da = rm.get2da("traps")
   for rr in list:
     let
       utp = rm.getGffRoot(rr)
@@ -57,7 +55,6 @@ proc placeableList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]):
       comment: utp["Comment", GffCExoString],
       keyName: utp["KeyName", GffCExoString],
       trapType: trapTypeId,
-      xTrapTypeName: traps2da.get(TwoDA())[trapTypeId, "TrapName", "0"].tlkText(dlg, tlk),
     )
     for k, v in placeable.fieldPairs:
       when v is int:
