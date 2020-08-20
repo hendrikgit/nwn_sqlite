@@ -1,23 +1,24 @@
+import strutils
 import neverwinter/[gff, resman, tlk]
 import helper
 
 type
   Area = object
-    name, resref, tag: string
+    name, resRef, tag: string
     height, width: int
     flags: int
-    flags_interior, flags_underground, flags_natural: bool
-    no_rest: bool
-    player_vs_player: int
+    xFlagInterior, xFlagUnderground, xFlagNatural: bool
+    noRest: bool
+    playerVsPlayer: int
     tileset: string
-    on_enter, on_exit: string
-    load_screen_id: int
-    is_night: bool
-    day_night_cycle: int
-    chance_lightning, chance_rain, chance_snow: int
-    wind_power: int
-    fog_clip_dist: float
-    mod_listen_check, mod_spot_check: int
+    onEnter, onExit: string
+    loadScreenID: int
+    isNight: bool
+    dayNightCycle: int
+    chanceLightning, chanceRain, chanceSnow: int
+    windPower: int
+    fogClipDist: float
+    modListenCheck, modSpotCheck: int
     comments: string
 
   AreaFlag {.size: 4.} = enum
@@ -36,30 +37,29 @@ proc areaList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[Single
       are = rm.getGffRoot(rr)
       flag = are["Flags", 0.GffDword].int
       flags = flag.toFlags
-    result &= Area(
+    var area = Area(
       name: are["Name", GffCExoLocString].getStr(dlg, tlk),
       resref: rr.resRef,
-      tag: are["Tag", ""],
-      height: are["Height", 0.GffInt],
-      width: are["Width", 0.GffInt],
+      tag: are["Tag", GffCExoString],
       flags: flag,
-      flagsInterior: flags.contains(areaInterior),
-      flagsUnderground: flags.contains(areaUnderground),
-      flagsNatural: flags.contains(areaNatural),
-      noRest: are["NoRest", 0.GffByte].bool,
-      playerVsPlayer: are["PlayerVsPlayer", 0.GffByte].int,
-      tileset: $are["Tileset", GffResRef],
-      onEnter: $are["OnEnter", GffResRef],
-      onExit: $are["OnExit", GffResRef],
-      comments: are["Comments", ""],
+      xFlagInterior: flags.contains(areaInterior),
+      xFlagUnderground: flags.contains(areaUnderground),
+      xFlagNatural: flags.contains(areaNatural),
+      comments: are["Comments", GffCExoString],
       loadScreenID: are["LoadScreenID", 0.GffWord].int,
-      isNight: are["IsNight", 0.GffByte].bool,
-      dayNightCycle: are["DayNightCycle", 0.GffByte].int,
-      chanceLightning: are["ChanceLightning", GffInt],
-      chanceRain: are["ChanceRain", 0.GffInt],
-      chanceSnow: are["ChanceSnow", 0.GffInt],
-      windPower: are["WindPower", 0.GffInt],
       fogClipDist: are["FogClipDist", 0.GffFloat],
-      modListenCheck: are["ModListenCheck", 0.GffInt],
-      modSpotCheck: are["ModSpotCheck", 0.GffInt],
     )
+    for k, v in area.fieldPairs:
+      let label = k.capitalizeAscii
+      when v is int:
+        case label
+        of "NoRest", "PlayerVsPlayer", "IsNight", "DayNightCycle":
+          v = are[label, 0.GffByte].int
+        of "Height", "Width", "ChanceLightning", "ChanceRain", "ChanceSnow",
+            "WindPower", "ModListenCheck", "ModSpotCheck":
+          v = are[label, -1.GffInt]
+      when v is string:
+        case label
+        of "Tileset", "OnEnter", "OnExit":
+          v = $are[label, GffResRef]
+    result &= area
