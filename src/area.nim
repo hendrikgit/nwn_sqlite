@@ -10,7 +10,7 @@ type
     xFlagInterior, xFlagUnderground, xFlagNatural: bool
     noRest: bool
     playerVsPlayer: int
-    tileset: string
+    tileset, xTilesetName: string
     onEnter, onExit: string
     loadScreenID: int
     isNight: bool
@@ -35,9 +35,19 @@ type
 proc toFlags(v: int): AreaFlags =
   cast[AreaFlags](v)
 
+proc getTilesetName(content: string, dlg, tlk: Option[SingleTlk]): string =
+  for l in content.splitLines:
+    if l.startsWith("UnlocalizedName="):
+      return l[16 .. ^1]
+    if l.startsWith("DisplayName="):
+      let strref = l[12 .. ^1]
+      if strref != "-1":
+        return strref.tlkText(dlg, tlk)
+
 proc areaList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[Area] =
   let sound2da = rm.get2da("ambientsound")
   let music2da = rm.get2da("ambientmusic")
+  var tilesetNames = initTable[string, string]()
   for rr in list:
     let
       are = rm.getGffRoot(rr)
@@ -86,4 +96,11 @@ proc areaList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[
       area.xMusicDayResource = music2da.get[area.musicDay, "Resource", ""]
       area.xMusicDelayResource = music2da.get[area.musicDelay, "Resource", ""]
       area.xMusicNightResource = music2da.get[area.musicNight, "Resource", ""]
+    if area.tileset in tilesetNames:
+      area.xTilesetName = tilesetNames[area.tileset]
+    elif rm.contains(newResRef(area.tileset, "set".getResType)):
+      let name = rm.demand(newResRef(area.tileset, "set".getResType))
+        .readAll.getTilesetName(dlg, tlk)
+      tilesetNames[area.tileset] = name
+      area.xTilesetName = name
     result &= area
