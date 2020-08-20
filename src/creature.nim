@@ -1,39 +1,43 @@
-import options, tables
+import options, tables, strutils
 import neverwinter/[gff, resman, tlk, twoda]
 import helper
 
 type
   Creature = object
-    name, resref, tag: string
-    palette, palette_full: string
-    palette_id: int
-    cr, cr_adjust, hp: int
-    level: int
-    class1: string
-    class1_id: int
-    class1_level: int
-    class2: string
-    class2_id: int
-    class2_level: int
-    class3: string
-    class3_id: int
-    class3_level: int
-    faction: string
-    faction_id: int
-    parent_faction: string
-    parent_faction_id: int
-    race: string
-    race_id: int
-    gender: string
-    gender_id: int
-    alignment: string
-    alignment_lawful_chaotic, alignment_good_evil: int
-    natural_ac: int
-    str, dex, con, int, wis, cha: int
-    lootable, disarmable, is_immortal, no_perm_death, plot, interruptable: int
-    walk_rate: int
+    firstName, lastName, xName: string
+    templateResRef, tag: string
+    paletteID: int
+    xPalette, xPaletteFull: string
+    challengeRating, cRAdjust: int
+    maxHitPoints: int
+    xLevel: int
+    xClass1: int
+    xClass1Name: string
+    xClass1Level: int
+    xClass2: int
+    xClass2Name: string
+    xClass2Level: int
+    xClass3: int
+    xClass3Name: string
+    xClass3Level: int
+    factionID: int
+    xParentFactionID: int
+    xFactionName, xParentFactionName: string
+    race: int
+    xRaceName: string
+    gender: int
+    xGenderName: string
+    lawfulChaotic, goodEvil: int
+    xAlignment: string
+    naturalAC: int
+    str, dex, con, `int`, wis, cha: int
+    lootable, disarmable, isImmortal, noPermDeath, plot, interruptable: int
+    walkRate: int
     conversation: string
     comment: string
+
+  CreatureName = tuple
+    first, last, full: string
 
   ClassInfo = object
     name1, name2, name3: string
@@ -62,11 +66,12 @@ proc toClassInfo(classList: GffList, classes2da: TwoDA, dlg: SingleTlk, tlk: Opt
     result.name3 = classes2da[result.id3, "Name"].get.tlkText(dlg, tlk)
     result.level3 = classList[2]["ClassLevel", GffShort]
 
-proc name(utc: GffRoot, dlg: SingleTlk, tlk: Option[SingleTlk]): string =
-  result = utc["FirstName", GffCExoLocString].getStr(dlg, tlk)
-  let last = utc["LastName", GffCExoLocString].getStr(dlg, tlk)
-  if last.len > 0:
-    result &= " " & last
+proc creatureName(utc: GffRoot, dlg: SingleTlk, tlk: Option[SingleTlk]): CreatureName =
+  result.first = utc["FirstName", GffCExoLocString].getStr(dlg, tlk)
+  result.last = utc["LastName", GffCExoLocString].getStr(dlg, tlk)
+  result.full = result.first
+  if result.last.len > 0:
+    result.full &= " " & result.last
 
 proc name(a: Alignment): string =
   let lc = case a.lawfulChaotic
@@ -98,6 +103,7 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[Si
   for rr in list:
     let
       utc = rm.getGffRoot(rr)
+      name = utc.creatureName(dlg, tlk)
       paletteId = utc["PaletteID", 0.GffByte].int
       factionId = utc["FactionID", 0.GffWord].int
       factionName = factionInfo.names.getOrDefault(factionId, "")
@@ -105,51 +111,46 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg: SingleTlk, tlk: Option[Si
       parentFactionName = factionInfo.names.getOrDefault(parentFactionId, "")
       classInfo = utc["ClassList", GffList].toClassInfo(classes2da, dlg, tlk)
       alignment = Alignment(lawfulChaotic: utc["LawfulChaotic", GffByte], goodEvil: utc["GoodEvil", GffByte])
-    result &= Creature(
-      name: utc.name(dlg, tlk),
-      resref: rr.resRef,
-      tag: utc["Tag", ""],
-      palette: palcusInfo.getOrDefault(paletteId).name,
-      paletteFull: palcusInfo.getOrDefault(paletteId).full,
-      paletteId: paletteId,
-      cr: crs.getOrDefault(rr.resRef, -1),
-      crAdjust: utc["CRAdjust", 0.GffInt],
-      hp: utc["MaxHitPoints", 0.GffShort],
-      class1: classInfo.name1,
-      class1Id: classInfo.id1,
-      class1Level: classInfo.level1,
-      class2: classInfo.name2,
-      class2Id: classInfo.id2,
-      class2Level: classInfo.level2,
-      class3: classInfo.name3,
-      class3Id: classInfo.id3,
-      class3Level: classInfo.level3,
-      level: classInfo.level1 + classInfo.level2 + classInfo.level3,
-      faction: factionName,
-      factionId: factionId,
-      parentFaction: parentFactionName,
-      parentFactionId: parentFactionId,
-      race: racialtypes[utc["Race", 0.GffByte], "Name"].get.tlkText(dlg, tlk),
-      raceId: utc["Race", 0.GffByte].int,
-      gender: gender[utc["Gender", 0.GffByte], "Name"].get.tlkText(dlg, tlk),
-      genderId: utc["Gender", 0.GffByte].int,
-      alignment: alignment.name,
-      alignmentLawfulChaotic: alignment.lawfulChaotic,
-      alignmentGoodEvil: alignment.goodEvil,
-      naturalAc: utc["NaturalAC", 0.GffByte].int,
-      str: utc["Str", 0.GffByte].int,
-      dex: utc["Dex", 0.GffByte].int,
-      con: utc["Con", 0.GffByte].int,
-      int: utc["Int", 0.GffByte].int,
-      wis: utc["Wis", 0.GffByte].int,
-      cha: utc["Cha", 0.GffByte].int,
-      lootable: utc["Lootable", 0.GffByte].int,
-      disarmable: utc["Disarmable", 0.GffByte].int,
-      isImmortal: utc["IsImmortal", 0.GffByte].int,
-      noPermDeath: utc["NoPermDeath", 0.GffByte].int,
-      plot: utc["Plot", 0.GffByte].int,
-      interruptable: utc["Interruptable", 0.GffByte].int,
-      walkRate: utc["WalkRate", 0.GffInt],
+    var creature = Creature(
+      firstName: name.first,
+      lastName: name.last,
+      xName: name.full,
+      templateResRef: rr.resRef,
+      paletteID: paletteId,
+      xPalette: palcusInfo.getOrDefault(paletteId).name,
+      xPaletteFull: palcusInfo.getOrDefault(paletteId).full,
+      xClass1: classInfo.id1,
+      xClass1Name: classInfo.name1,
+      xClass1Level: classInfo.level1,
+      xClass2: classInfo.id2,
+      xClass2Name: classInfo.name2,
+      xClass2Level: classInfo.level2,
+      xClass3: classInfo.id3,
+      xClass3Name: classInfo.name3,
+      xClass3Level: classInfo.level3,
+      xLevel: classInfo.level1 + classInfo.level2 + classInfo.level3,
+      factionID: factionId,
+      xFactionName: factionName,
+      xParentFactionID: parentFactionId,
+      xParentFactionName: parentFactionName,
+      xAlignment: alignment.name,
+      lawfulChaotic: alignment.lawfulChaotic,
+      goodEvil: alignment.goodEvil,
+      xRaceName: racialtypes[utc["Race", 0.GffByte], "Name"].get.tlkText(dlg, tlk),
+      xGenderName: gender[utc["Gender", 0.GffByte], "Name"].get.tlkText(dlg, tlk),
+      tag: utc["Tag", GffCExoString],
+      comment: utc["Comment", GffCExoString],
       conversation: $utc["Conversation", GffResRef],
-      comment: utc["Comment", ""],
+      maxHitPoints: utc["MaxHitPoints", 0.GffShort],
+      challengeRating: crs.getOrDefault(rr.resRef, -1),
+      crAdjust: utc["CRAdjust", 0.GffInt],
+      walkRate: utc["WalkRate", 0.GffInt],
     )
+    for k, v in creature.fieldPairs:
+      let label = k.capitalizeAscii
+      when v is int:
+        case label
+        of "Race", "Gender", "NaturalAC", "Str", "Dex", "Con", "Int", "Wis", "Cha",
+            "Lootable", "Disarmable", "IsImmortal", "NoPermDeath", "Plot", "Interruptable":
+          v = utc[label, 0.GffByte].int
+    result &= creature
