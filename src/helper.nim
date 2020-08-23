@@ -113,14 +113,14 @@ proc tlkText*(strref: string, dlg, tlk: Option[SingleTlk]): string =
   tlkText(strref.parseInt.StrRef , dlg, tlk)
 
 proc getStr*(locstr: GffCExoLocString, dlg, tlk: Option[SingleTlk]): string =
-  if locstr.strRef != BadStrRef:
-    return locstr.strRef.tlkText(dlg, tlk)
   if dlg.isSome and locstr.entries.hasKey(dlg.get.language.ord):
     return locstr.entries[dlg.get.language.ord]
   if locstr.entries.hasKey(Language.English.ord):
     return locstr.entries[Language.English.ord]
   for value in locstr.entries.values:
     if value.len > 0: return value
+  if locstr.strRef != BadStrRef:
+    return locstr.strRef.tlkText(dlg, tlk)
 
 proc toPalcusInfo*(list: GffList, dlg, tlk: Option[SingleTlk], parents = ""): PalcusInfo =
   for li in list:
