@@ -17,7 +17,7 @@ method contains*(self: ResFileContainer, rr: ResRef): bool =
 
 method demand*(self: ResFileContainer, rr: ResRef): Res =
   let f = self.files[rr]
-  newRes(self.newResOrigin, rr, f.getLastModificationTime, f.openFileStream, f.getFileSize.int, ioOwned = true)
+  newRes(self.newResOrigin(f), rr, f.getLastModificationTime, f.openFileStream, f.getFileSize.int, ioOwned = true)
 
 method count*(self: ResFileContainer): int =
   self.files.len
@@ -27,4 +27,4 @@ method contents*(self: ResFileContainer): OrderedSet[ResRef] =
     result.incl rr
 
 method `$`*(self: ResFileContainer): string =
-  "ResFileContainer: " & $self.files.len & " files"
+  "ResFileContainer(" & $self.files.len & " files)"

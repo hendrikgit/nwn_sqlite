@@ -57,7 +57,11 @@ proc flatten*(list: GffList): GffList =
 
 proc get2da*(rm: ResMan, name: string): Option[TwoDA] =
   if rm.contains(newResRef(name, "2da".getResType)):
-    return some rm[newResRef(name, "2da".getResType)].get.readAll.newStringStream.readTwoDA
+    let res = rm[newResRef(name, "2da".getResType)].get
+    try:
+      return some res.readAll.newStringStream.readTwoDA
+    except:
+      echo "Warning: Could not read 2da (check the header and formatting): " & name & ".2da, " & $res.origin
   else:
     echo "Warning: 2da not found: " & name & ".2da"
 
