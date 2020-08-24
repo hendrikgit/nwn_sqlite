@@ -125,7 +125,6 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): 
       xNameLowercase: name.full.toLower,
       templateResRef: rr.resRef,
       appearance_Type: appearance,
-      xAppearance_TypeName: appearance2da.get(TwoDA())[appearance, "STRING_REF", "0"].tlkText(dlg, tlk),
       paletteID: paletteId,
       xPalette: palcusInfo.getOrDefault(paletteId).name,
       xPaletteFull: palcusInfo.getOrDefault(paletteId).full,
@@ -156,6 +155,12 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): 
       crAdjust: utc["CRAdjust", 0.GffInt],
       walkRate: utc["WalkRate", 0.GffInt],
     )
+    if appearance2da.isSome:
+      let strref = appearance2da.get[appearance, "STRING_REF"]
+      if strref.isSome:
+        creature.xAppearance_TypeName = strref.get.tlkText(dlg, tlk)
+      else:
+        creature.xAppearance_TypeName = appearance2da.get[appearance, "LABEL", ""]
     for k, v in creature.fieldPairs:
       when v is int:
         let label = k.capitalizeAscii
