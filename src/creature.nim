@@ -34,6 +34,7 @@ type
     naturalAC: int
     str, dex, con, `int`, wis, cha: int
     lootable, disarmable, isImmortal, noPermDeath, plot, interruptable: int
+    perceptionRange: int
     walkRate: int
     conversation: string
     comment: string
@@ -166,6 +167,7 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): 
         let label = k.capitalizeAscii
         case label
         of "Race", "Gender", "NaturalAC", "Str", "Dex", "Con", "Int", "Wis", "Cha",
-            "Lootable", "Disarmable", "IsImmortal", "NoPermDeath", "Plot", "Interruptable":
+            "Lootable", "Disarmable", "IsImmortal", "NoPermDeath", "Plot", "Interruptable",
+            "PerceptionRange":
           v = utc[label, 0.GffByte].int
     result &= creature

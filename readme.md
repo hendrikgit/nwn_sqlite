@@ -178,9 +178,10 @@ cid  name                      type
 46   NoPermDeath               integer
 47   Plot                      integer
 48   Interruptable             integer
-49   WalkRate                  integer
-50   Conversation              text
-51   Comment                   text
+49   PerceptionRange           integer
+50   WalkRate                  integer
+51   Conversation              text
+52   Comment                   text
 ```
 
 ### items
