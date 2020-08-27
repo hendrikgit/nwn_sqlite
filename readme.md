@@ -267,5 +267,5 @@ cid  name                      type
 cid  name                      type
 ---  ------------------------  -------
 0    id                        integer
-1    LABEL                     text
+1    Label                     text
 ```

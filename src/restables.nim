@@ -2,7 +2,7 @@ import macros, sequtils, strutils, tables
 import neverwinter/[resman, twoda]
 import db
 
-macro tupleDef(cols: openArray[string]): untyped =
+macro objectDef(cols: openArray[string]): untyped =
   # cols.getImpl.treeRepr:
   # IdentDefs
   #   Sym "cols"
@@ -12,7 +12,7 @@ macro tupleDef(cols: openArray[string]): untyped =
   #     StrLit "y"
   #     ...
   let colStrings = toSeq(cols.getImpl[2].children).mapIt it.strVal
-  parseStmt("type TwodaRow = tuple[id:int," & colStrings.join(",") & ":string]")
+  parseStmt("type TwodaRow = object\n  id:int\n  " & colStrings.join(",") & ":string")
 
 template write2daTable*(rm: ResMan, dbName, twodaName, tableName: string, cols: openArray[string]) =
   let resref = newResRef(twodaName, "2da".getResType)
@@ -23,11 +23,11 @@ template write2daTable*(rm: ResMan, dbName, twodaName, tableName: string, cols: 
       if cols.findIt(it == c).isSome:
         colIdxs[c] = idx
     let colsForMacro = cols # the macro needs symbols to work on and cols passed to this template might be an automatic variable
-    tupleDef(colsForMacro)
+    objectDef(colsForMacro)
     var rows = newSeq[TwodaRow]()
     for rowIdx in 0 .. twoda.high:
       var add = false
-      var row: TwodaRow
+      var row = TwodaRow()
       for col, v in row.fieldPairs:
         when col != "id":
           if twoda[rowIdx].get[colIdxs[col]].isSome:
