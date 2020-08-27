@@ -5,3 +5,4 @@ pragma table_info('areas');
 pragma table_info('creatures');
 pragma table_info('items');
 pragma table_info('placeables');
+pragma table_info('appearances');

@@ -75,6 +75,7 @@ Column names match the names of the fields/keys in the corresponding gff. Additi
 * [creatures](#creatures)
 * [items](#items)
 * [placeables](#placeables)
+* [appearances](#appearances)
 
 ### areas
 ```
@@ -250,4 +251,12 @@ cid  name                      type
 33   TrapType                  integer
 34   Conversation              text
 35   Comment                   text
+```
+
+### appearances
+```
+cid  name                      type
+---  ------------------------  -------
+0    id                        integer
+1    LABEL                     text
 ```

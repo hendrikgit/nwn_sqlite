@@ -1,6 +1,6 @@
 import encodings, os, sequtils, streams, strformat, strutils
-import neverwinter/[gff, key, resman, tlk, util]
-import area, creature, db, helper, item, placeable
+import neverwinter/[gff, key, resman, tlk, twoda, util]
+import area, creature, db, helper, item, placeable, restables
 
 const version = getEnv("VERSION")
 
@@ -137,3 +137,5 @@ if ares.len > 0:
   echo "Areas (are) found: " & $ares.len
 let areas = ares.areaList(rm, dlg, cTlk)
 areas.writeTable(dbName, "areas")
+
+write2daTable(rm, dbName, "appearance", "appearances", ["LABEL"])
