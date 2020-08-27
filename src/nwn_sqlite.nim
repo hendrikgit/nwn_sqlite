@@ -138,4 +138,5 @@ if ares.len > 0:
 let areas = ares.areaList(rm, dlg, cTlk)
 areas.writeTable(dbName, "areas")
 
-write2daTable(rm, dbName, "appearance", "appearances", ["LABEL"])
+write2daTable(rm, dbName, "appearance", "appearance2da", ["LABEL"])
+write2daTable(rm, dbName, "placeables", "placeables2da", ["Label"])
