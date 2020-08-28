@@ -268,4 +268,5 @@ cid  name                      type
 ---  ------------------------  -------
 0    id                        integer
 1    Label                     text
+2    ModelName                 text
 ```
