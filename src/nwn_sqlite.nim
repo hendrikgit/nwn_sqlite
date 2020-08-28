@@ -140,3 +140,5 @@ areas.writeTable(dbName, "areas")
 
 write2daTable(rm, dbName, "appearance", "appearance2da", ["LABEL"])
 write2daTable(rm, dbName, "placeables", "placeables2da", ["Label", "ModelName"])
+write2daTable(rm, dbName, "ambientmusic", "ambientmusic2da", ["Resource"])
+write2daTable(rm, dbName, "ambientsound", "ambientsound2da", ["Resource"])

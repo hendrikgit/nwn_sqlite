@@ -7,3 +7,5 @@ pragma table_info('items');
 pragma table_info('placeables');
 pragma table_info('appearance2da');
 pragma table_info('placeables2da');
+pragma table_info('ambientmusic2da');
+pragma table_info('ambientsound2da');
