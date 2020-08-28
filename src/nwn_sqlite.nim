@@ -103,9 +103,14 @@ var
   utcs = newSeq[ResRef]()
   utis = newSeq[ResRef]()
   utps = newSeq[ResRef]()
+  sets = newSeq[ResRef]()
 for container in rm.containers:
-  # skip KeyTable, those are the base game resources
-  if container of KeyTable: continue
+  if container of KeyTable:
+    # KeyTable are the base game resources, only add tilesets from here
+    for rr in container.contents:
+      if rr.restype == "set".getResType:
+        sets &= rr
+    continue
   for rr in container.contents:
     let restype = rr.resType
     if restype == "are".getResType:
@@ -116,6 +121,8 @@ for container in rm.containers:
       utis &= rr
     elif restype == "utp".getResType:
       utps &= rr
+    elif restype == "set".getResType:
+      sets &= rr
 
 if utcs.len > 0:
   echo "Creatures (utc) found: " & $utcs.len
@@ -137,6 +144,10 @@ if ares.len > 0:
   echo "Areas (are) found: " & $ares.len
 let areas = ares.areaList(rm, dlg, cTlk)
 areas.writeTable(dbName, "areas")
+
+if sets.len > 0:
+  echo "Tilesets (set) found: " & $sets.len
+writeTable(sets.mapIt((resref: it.resRef, name: rm.demand(it).readAll.getTilesetName(dlg, cTlk))), dbName, "tilesets")
 
 write2daTable(rm, dbName, "appearance", "appearance2da", ["LABEL"])
 write2daTable(rm, dbName, "placeables", "placeables2da", ["Label", "ModelName"])

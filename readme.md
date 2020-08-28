@@ -79,6 +79,7 @@ Column names match the names of the fields/keys in the corresponding gff. Additi
 * [placeables2da](#placeables2da)
 * [ambientmusic2da](#ambientmusic2da)
 * [ambientsound2da](#ambientsound2da)
+* [tilesets](#tilesets)
 
 ### areas
 ```
@@ -287,4 +288,13 @@ cid  name                      type
 ---  ------------------------  -------
 0    id                        integer
 1    Resource                  text
+```
+
+### tilesets
+```
+cid  name                      type
+---  ------------------------  -------
+0    id                        integer
+1    Resref                    text
+2    Name                      text
 ```

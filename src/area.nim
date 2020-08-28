@@ -35,15 +35,6 @@ type
 proc toFlags(v: int): AreaFlags =
   cast[AreaFlags](v)
 
-proc getTilesetName(content: string, dlg, tlk: Option[SingleTlk]): string =
-  for l in content.splitLines:
-    if l.startsWith("UnlocalizedName="):
-      return l[16 .. ^1]
-    if l.startsWith("DisplayName="):
-      let strref = l[12 .. ^1]
-      if strref != "-1":
-        return strref.tlkText(dlg, tlk)
-
 proc areaList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[Area] =
   let sound2da = rm.get2da("ambientsound")
   let music2da = rm.get2da("ambientmusic")

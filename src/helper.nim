@@ -15,7 +15,8 @@ const dataFileExtensions* = [
   ".tlk",
   ".utc",
   ".uti",
-  ".utp"
+  ".utp",
+  ".set",
 ]
 
 type
@@ -125,6 +126,15 @@ proc getStr*(locstr: GffCExoLocString, dlg, tlk: Option[SingleTlk]): string =
     if value.len > 0: return value
   if locstr.strRef != BadStrRef:
     return locstr.strRef.tlkText(dlg, tlk)
+
+proc getTilesetName*(content: string, dlg, tlk: Option[SingleTlk]): string =
+  for l in content.splitLines:
+    if l.startsWith("UnlocalizedName="):
+      return l[16 .. ^1]
+    if l.startsWith("DisplayName="):
+      let strref = l[12 .. ^1]
+      if strref != "-1":
+        return strref.tlkText(dlg, tlk)
 
 proc toPalcusInfo*(list: GffList, dlg, tlk: Option[SingleTlk], parents = ""): PalcusInfo =
   for li in list:
