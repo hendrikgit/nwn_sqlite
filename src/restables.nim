@@ -37,3 +37,5 @@ template write2daTable*(rm: ResMan, dbName, twodaName, tableName: string, cols: 
         row.id = rowIdx
         rows &= row
     rows.writeTable(dbName, tableName)
+  else: # call with empty seq to drop existing table
+    writeTable(newSeq[tuple[]](), dbName, tableName)
