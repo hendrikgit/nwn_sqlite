@@ -38,6 +38,9 @@ type
     walkRate: int
     conversation: string
     comment: string
+    scriptAttacked, scriptDamaged, scriptDeath, scriptDialogue, scriptDisturbed: string
+    scriptEndRound, scriptHeartbeat, scriptOnBlocked, scriptOnNotice, scriptRested: string
+    scriptSpawn, scriptSpellAt, scriptUserDefined: string
 
   CreatureName = tuple
     first, last, full: string
@@ -163,11 +166,17 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): 
       else:
         creature.xAppearance_TypeName = appearance2da.get[appearance, "LABEL", ""]
     for k, v in creature.fieldPairs:
+      let label = k.capitalizeAscii
       when v is int:
-        let label = k.capitalizeAscii
         case label
         of "Race", "Gender", "NaturalAC", "Str", "Dex", "Con", "Int", "Wis", "Cha",
             "Lootable", "Disarmable", "IsImmortal", "NoPermDeath", "Plot", "Interruptable",
             "PerceptionRange":
           v = utc[label, 0.GffByte].int
+      when v is string:
+        case label
+        of "ScriptAttacked", "ScriptDamaged", "ScriptDeath", "ScriptDialogue", "ScriptDisturbed",
+            "ScriptEndRound", "ScriptHeartbeat", "ScriptOnBlocked", "ScriptOnNotice", "ScriptRested",
+            "ScriptSpawn", "ScriptSpellAt", "ScriptUserDefine":
+          v = $utc[label, GffResRef]
     result &= creature
