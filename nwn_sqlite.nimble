@@ -12,7 +12,7 @@ requires "neverwinter == 1.3.1"
 
 task getsqlite3, "Download amalgamated sqlite3.c source from https://www.sqlite.org":
   const
-    zip = "sqlite-amalgamation-3320300.zip"
+    zip = "sqlite-amalgamation-3330000.zip"
     url = "https://www.sqlite.org/2020/" & zip
   if not fileExists zip:
     echo "Downloading " & url & " to " & zip

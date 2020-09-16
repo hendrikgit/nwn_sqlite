@@ -11,7 +11,7 @@ type
     noRest: bool
     playerVsPlayer: int
     tileset, xTilesetName: string
-    onEnter, onExit: string
+    onEnter, onExit, onHeartbeat, onUserDefined: string
     loadScreenID: int
     isNight: bool
     dayNightCycle: int
@@ -77,7 +77,7 @@ proc areaList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[
           if gitAreaProps.hasKey(label): v = gitAreaProps[label].getValue(GffInt)
       when v is string:
         case label
-        of "Tileset", "OnEnter", "OnExit":
+        of "Tileset", "OnEnter", "OnExit", "OnHeartbeat", "OnUserDefined":
           v = $are[label, GffResRef]
     if sound2da.isSome:
       area.xAmbientSndDayResource = sound2da.get(TwoDA())[area.ambientSndDay, "Resource", ""]

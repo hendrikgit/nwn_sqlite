@@ -23,6 +23,9 @@ type
     trapType: int
     conversation: string
     comment: string
+    onClosed, onDamaged, onDeath, onDisarm, onHeartbeat, onInvDisturbed: string
+    onLock, onMeleeAttacked, onOpen, onSpellCastAt, onTrapTriggered, onUnlock: string
+    onUsed, onUserDefined: string
 
 proc placeableList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[Placeable] =
   let
@@ -59,12 +62,18 @@ proc placeableList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]):
       trapType: trapTypeId,
     )
     for k, v in placeable.fieldPairs:
-      when v is int:
-        let label = k.capitalizeAscii
+      let label = k.capitalizeAscii
+      when v is int:        
         case label
         of "Static", "Plot", "Useable", "HasInventory", "Hardness", "Fort", "Will",
             "Locked", "Lockable", "KeyRequired", "OpenLockDC", "CloseLockDC", "DisarmDC",
             "Interruptable", "TrapDetectable", "TrapDetectDC", "TrapDisarmable", "TrapFlag",
             "TrapOneShot":
           v = utp[label, GffByte].int
+      when v is string:
+        case label
+        of "OnClosed", "OnDamaged", "OnDeath", "OnDisarm", "OnHeartbeat", "OnInvDisturbed",
+            "OnLock", "OnMeleeAttacked", "OnOpen", "OnSpellCastAt", "OnTrapTriggered",
+            "OnUnlock", "OnUsed", "OnUserDefined":
+          v = $utp[label, GffResRef]
     result &= placeable
