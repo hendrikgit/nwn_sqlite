@@ -102,32 +102,34 @@ cid  name                      type
 14   _TilesetName              text
 15   OnEnter                   text
 16   OnExit                    text
-17   LoadScreenID              integer
-18   IsNight                   integer
-19   DayNightCycle             integer
-20   ChanceLightning           integer
-21   ChanceRain                integer
-22   ChanceSnow                integer
-23   WindPower                 integer
-24   FogClipDist               real
-25   ModListenCheck            integer
-26   ModSpotCheck              integer
-27   Comments                  text
-28   AmbientSndDay             integer
-29   AmbientSndDayVol          integer
-30   AmbientSndNight           integer
-31   AmbientSndNitVol          integer
-32   EnvAudio                  integer
-33   MusicBattle               integer
-34   MusicDay                  integer
-35   MusicDelay                integer
-36   MusicNight                integer
-37   _AmbientSndDayResource    text
-38   _AmbientSndNightResource  text
-39   _MusicBattleResource      text
-40   _MusicDayResource         text
-41   _MusicDelayResource       text
-42   _MusicNightResource       text
+17   OnHeartbeat               text
+18   OnUserDefined             text
+19   LoadScreenID              integer
+20   IsNight                   integer
+21   DayNightCycle             integer
+22   ChanceLightning           integer
+23   ChanceRain                integer
+24   ChanceSnow                integer
+25   WindPower                 integer
+26   FogClipDist               real
+27   ModListenCheck            integer
+28   ModSpotCheck              integer
+29   Comments                  text
+30   AmbientSndDay             integer
+31   AmbientSndDayVol          integer
+32   AmbientSndNight           integer
+33   AmbientSndNitVol          integer
+34   EnvAudio                  integer
+35   MusicBattle               integer
+36   MusicDay                  integer
+37   MusicDelay                integer
+38   MusicNight                integer
+39   _AmbientSndDayResource    text
+40   _AmbientSndNightResource  text
+41   _MusicBattleResource      text
+42   _MusicDayResource         text
+43   _MusicDelayResource       text
+44   _MusicNightResource       text
 ```
 
 ### creatures
@@ -187,6 +189,19 @@ cid  name                      type
 50   WalkRate                  integer
 51   Conversation              text
 52   Comment                   text
+53   ScriptAttacked            text
+54   ScriptDamaged             text
+55   ScriptDeath               text
+56   ScriptDialogue            text
+57   ScriptDisturbed           text
+58   ScriptEndRound            text
+59   ScriptHeartbeat           text
+60   ScriptOnBlocked           text
+61   ScriptOnNotice            text
+62   ScriptRested              text
+63   ScriptSpawn               text
+64   ScriptSpellAt             text
+65   ScriptUserDefined         text
 ```
 
 ### items
@@ -255,6 +270,20 @@ cid  name                      type
 33   TrapType                  integer
 34   Conversation              text
 35   Comment                   text
+36   OnClosed                  text
+37   OnDamaged                 text
+38   OnDeath                   text
+39   OnDisarm                  text
+40   OnHeartbeat               text
+41   OnInvDisturbed            text
+42   OnLock                    text
+43   OnMeleeAttacked           text
+44   OnOpen                    text
+45   OnSpellCastAt             text
+46   OnTrapTriggered           text
+47   OnUnlock                  text
+48   OnUsed                    text
+49   OnUserDefined             text
 ```
 
 ### appearance2da
