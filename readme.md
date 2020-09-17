@@ -292,6 +292,7 @@ cid  name                      type
 ---  ------------------------  -------
 0    id                        integer
 1    LABEL                     text
+2    _STRING_REF               text
 ```
 
 ### placeables2da
@@ -301,6 +302,7 @@ cid  name                      type
 0    id                        integer
 1    Label                     text
 2    ModelName                 text
+3    _StrRef                   text
 ```
 
 ### ambientmusic2da
@@ -309,6 +311,7 @@ cid  name                      type
 ---  ------------------------  -------
 0    id                        integer
 1    Resource                  text
+2    _Description              text
 ```
 
 ### ambientsound2da
@@ -317,6 +320,7 @@ cid  name                      type
 ---  ------------------------  -------
 0    id                        integer
 1    Resource                  text
+2    _Description              text
 ```
 
 ### tilesets

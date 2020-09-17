@@ -26,6 +26,13 @@ type
     names*: Table[int, string]
     parents*: Table[int, int]
 
+template findItIdx*(s, pred: untyped): untyped =
+  var result = -1
+  for idx, it {.inject.} in s:
+    if result == -1 and pred:
+      result = idx
+  result
+
 template findIt*(s, pred: untyped): untyped =
   var result: Option[type(s[0])]
   for it {.inject.} in s.items:
@@ -115,7 +122,12 @@ proc tlkText*(strref: StrRef, dlg, tlk: Option[SingleTlk]): string =
       return entry.get.text
 
 proc tlkText*(strref: string, dlg, tlk: Option[SingleTlk]): string =
-  tlkText(strref.parseInt.StrRef , dlg, tlk)
+  var intstrref = 0
+  try:
+    intstrref = strref.parseInt
+  except:
+    return strref
+  tlkText(intstrref.StrRef , dlg, tlk)
 
 proc getStr*(locstr: GffCExoLocString, dlg, tlk: Option[SingleTlk]): string =
   if dlg.isSome and locstr.entries.hasKey(dlg.get.language.ord):

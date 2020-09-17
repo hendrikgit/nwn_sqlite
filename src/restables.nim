@@ -1,38 +1,29 @@
-import macros, sequtils, strutils, tables
-import neverwinter/[resman, twoda]
+import strutils, tables
+import neverwinter/[resman, tlk, twoda]
 import db
 
-macro objectDef(cols: openArray[string]): untyped =
-  # cols.getImpl.treeRepr:
-  # IdentDefs
-  #   Sym "cols"
-  #   Empty
-  #   Bracket
-  #     StrLit "x"
-  #     StrLit "y"
-  #     ...
-  let colStrings = toSeq(cols.getImpl[2].children).mapIt it.strVal
-  parseStmt("type TwodaRow = object\n  id:int\n  " & colStrings.join(",") & ":string")
-
-template write2daTable*(rm: ResMan, dbName, twodaName, tableName: string, cols: openArray[string]) =
+template write2daTable*(rm: ResMan, dlg, tlk: Option[SingleTlk], dbName, twodaName, tableName: string, cols: tuple) =
   let resref = newResRef(twodaName, "2da".getResType)
   if rm.contains(resref):
     let twoda = rm[resref].get.readAll.newStringStream.readTwoDA
     var colIdxs = initTable[string, int]()
-    for idx, c in twoda.columns:
-      if cols.findIt(it == c).isSome:
-        colIdxs[c] = idx
-    let colsForMacro = cols # the macro needs symbols to work on and cols passed to this template might be an automatic variable
-    objectDef(colsForMacro)
-    var rows = newSeq[TwodaRow]()
+    for k, _ in cols.fieldPairs:
+      let col = if k.startsWith("x"): k[1 .. ^1] else: k
+      let idx = twoda.columns.findItIdx it == col
+      if idx != -1:
+        colIdxs[k] = idx
+    var rows = newSeq[cols.typeof]()
     for rowIdx in 0 .. twoda.high:
       var add = false
-      var row = TwodaRow()
+      var row = cols
       for col, v in row.fieldPairs:
         when col != "id":
           if twoda[rowIdx].get[colIdxs[col]].isSome:
             add = true
-            v = twoda[rowIdx].get[colIdxs[col]].get
+            if v == "strref":
+              v = twoda[rowIdx].get[colIdxs[col]].get.tlkText(dlg, tlk)
+            else:
+              v = twoda[rowIdx].get[colIdxs[col]].get
       if add:
         row.id = rowIdx
         rows &= row

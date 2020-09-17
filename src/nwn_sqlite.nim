@@ -149,7 +149,7 @@ if sets.len > 0:
   echo "Tilesets (set) found: " & $sets.len
 writeTable(sets.mapIt((resref: it.resRef, name: rm.demand(it).readAll.getTilesetName(dlg, cTlk))), dbName, "tilesets")
 
-write2daTable(rm, dbName, "appearance", "appearance2da", ["LABEL"])
-write2daTable(rm, dbName, "placeables", "placeables2da", ["Label", "ModelName"])
-write2daTable(rm, dbName, "ambientmusic", "ambientmusic2da", ["Resource"])
-write2daTable(rm, dbName, "ambientsound", "ambientsound2da", ["Resource"])
+write2daTable(rm, dlg, cTlk, dbName, "appearance", "appearance2da", (id: 0, LABEL: "", xSTRING_REF: "strref"))
+write2daTable(rm, dlg, cTlk, dbName, "placeables", "placeables2da", (id: 0, Label: "", ModelName: "", xStrRef: "strref"))
+write2daTable(rm, dlg, cTlk, dbName, "ambientmusic", "ambientmusic2da", (id: 0, Resource: "", xDescription: "strref"))
+write2daTable(rm, dlg, cTlk, dbName, "ambientsound", "ambientsound2da", (id: 0, Resource: "", xDescription: "strref"))
