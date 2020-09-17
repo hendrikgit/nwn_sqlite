@@ -172,11 +172,11 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): 
         of "Race", "Gender", "NaturalAC", "Str", "Dex", "Con", "Int", "Wis", "Cha",
             "Lootable", "Disarmable", "IsImmortal", "NoPermDeath", "Plot", "Interruptable",
             "PerceptionRange":
-          v = utc[label, 0.GffByte].int
+          v = utc.getOrDefault(label, 0.GffByte).int
       when v is string:
         case label
         of "ScriptAttacked", "ScriptDamaged", "ScriptDeath", "ScriptDialogue", "ScriptDisturbed",
             "ScriptEndRound", "ScriptHeartbeat", "ScriptOnBlocked", "ScriptOnNotice", "ScriptRested",
             "ScriptSpawn", "ScriptSpellAt", "ScriptUserDefine":
-          v = $utc[label, GffResRef]
+          v = $utc.getOrDefault(label, "".GffResRef)
     result &= creature

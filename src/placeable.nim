@@ -63,17 +63,17 @@ proc placeableList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]):
     )
     for k, v in placeable.fieldPairs:
       let label = k.capitalizeAscii
-      when v is int:        
+      when v is int:
         case label
         of "Static", "Plot", "Useable", "HasInventory", "Hardness", "Fort", "Will",
             "Locked", "Lockable", "KeyRequired", "OpenLockDC", "CloseLockDC", "DisarmDC",
             "Interruptable", "TrapDetectable", "TrapDetectDC", "TrapDisarmable", "TrapFlag",
             "TrapOneShot":
-          v = utp[label, GffByte].int
+          v = utp.getOrDefault(label, 0.GffByte).int
       when v is string:
         case label
         of "OnClosed", "OnDamaged", "OnDeath", "OnDisarm", "OnHeartbeat", "OnInvDisturbed",
             "OnLock", "OnMeleeAttacked", "OnOpen", "OnSpellCastAt", "OnTrapTriggered",
             "OnUnlock", "OnUsed", "OnUserDefined":
-          v = $utp[label, GffResRef]
+          v = $utp.getOrDefault(label, "".GffResRef)
     result &= placeable
