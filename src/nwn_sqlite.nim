@@ -20,7 +20,8 @@ add the path to them (or a directory with .key, .bif) as further parameters.
 Use:
   -o:dbname.sqlite3        to specify the name of the output database file.
   -e:encoding              to specify the encoding of the input
-                           (for example "cp1251" for Cyrillic)
+                           (for example "cp1251" for Cyrillic).
+  -withkey                 to include the resources indexed by .key files in the output.
 
 Existing tables will be overwritten.
 """
@@ -29,6 +30,7 @@ Existing tables will be overwritten.
 let
   dbName = commandLineParams().findIt(it.startsWith("-o:")).get[3 .. ^1]
   encodingParam = commandLineParams().findIt(it.startsWith("-e:"))
+  withKey = commandLineParams().findItIdx(it == "-withkey") != -1
   dataFiles = paths.getDataFiles
   rm = newResMan() # container added last to resman will be queried first
 
@@ -105,8 +107,9 @@ var
   utps = newSeq[ResRef]()
   sets = newSeq[ResRef]()
 for container in rm.containers:
-  if container of KeyTable:
-    # KeyTable are the base game resources, only add tilesets from here
+  if container of KeyTable and not withKey:
+    # KeyTable are the base game resources
+    # only add tilesets from here, unless -withkey parameter was given
     for rr in container.contents:
       if rr.restype == "set".getResType:
         sets &= rr
