@@ -1,12 +1,12 @@
 import db_sqlite, sequtils, strutils
 
 type
-  SqliteType = enum
+  SqliteType* = enum
     sqliteInteger = "integer"
     sqliteReal = "real"
     sqliteText = "text"
 
-  Column = tuple
+  Column* = tuple
     name: string
     coltype: SqliteType
 
@@ -54,4 +54,12 @@ proc writeTable*(rows: seq[object | tuple], filename, tablename: string) =
         stringRow &= $v
     stringRows &= stringRow
   db.insert(tablename, cols, stringRows)
+  db.close
+
+proc writeTable*(rows: seq[seq[string]], cols: seq[Column], filename, tablename: string) =
+  let db = open(filename, "", "", "")
+  db.exec(sql("drop table if exists " & tablename))
+  if rows.len == 0: return
+  db.createTable(tablename, cols)
+  db.insert(tablename, cols, rows)
   db.close

@@ -1,6 +1,6 @@
 import encodings, os, sequtils, streams, strformat, strutils
 import neverwinter/[gff, key, resman, tlk, twoda, util]
-import area, creature, db, helper, item, placeable, restables
+import area, creature, db, encounter, helper, item, placeable, restables
 
 const version = getEnv("VERSION")
 
@@ -103,6 +103,7 @@ rm.addFiles(
 var
   ares = newSeq[ResRef]()
   utcs = newSeq[ResRef]()
+  utes = newSeq[ResRef]()
   utis = newSeq[ResRef]()
   utps = newSeq[ResRef]()
   sets = newSeq[ResRef]()
@@ -118,8 +119,10 @@ for container in rm.containers:
     let restype = rr.resType
     if restype == "are".getResType:
       ares &= rr
-    if restype == "utc".getResType:
+    elif restype == "utc".getResType:
       utcs &= rr
+    elif restype == "ute".getResType:
+      utes &= rr
     elif restype == "uti".getResType:
       utis &= rr
     elif restype == "utp".getResType:
@@ -132,6 +135,10 @@ if utcs.len > 0:
 # writeTable with empty list will remove the table
 let creatures = utcs.creatureList(rm, dlg, cTlk)
 creatures.writeTable(dbName, "creatures")
+
+if utes.len > 0:
+  echo "Encounters (ute) found: " & $utes.len
+  utes.encounterList(rm, dlg, cTlk).writeTable(encounterCols(), dbName, "encounters")
 
 if utis.len > 0:
   echo "Items (uti) found: " & $utis.len

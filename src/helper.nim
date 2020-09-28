@@ -14,6 +14,7 @@ const dataFileExtensions* = [
   ".mod",
   ".tlk",
   ".utc",
+  ".ute",
   ".uti",
   ".utp",
   ".set",
