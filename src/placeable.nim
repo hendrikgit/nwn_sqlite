@@ -47,7 +47,7 @@ proc placeableList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]):
       locName: name,
       xNameLowercase: name.toLower,
       templateResRef: rr.resRef,
-      tag: utp["Tag", GffCExoString],
+      tag: utp["Tag", "".GffCExoString],
       paletteId: paletteId,
       xPalette: palcusInfo.getOrDefault(paletteId).name,
       xPaletteFull: palcusInfo.getOrDefault(paletteId).full,
@@ -56,9 +56,9 @@ proc placeableList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]):
       xFactionName: factionName,
       xParentFactionName: parentFactionName,
       hP: utp["HP", GffShort],
-      conversation: $utp["Conversation", GffResRef],
-      comment: utp["Comment", GffCExoString],
-      keyName: utp["KeyName", GffCExoString],
+      conversation: $utp["Conversation", "".GffResRef],
+      comment: utp["Comment", "".GffCExoString],
+      keyName: utp["KeyName", "".GffCExoString],
       trapType: trapTypeId,
     )
     for k, v in placeable.fieldPairs:
@@ -69,11 +69,11 @@ proc placeableList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]):
             "Locked", "Lockable", "KeyRequired", "OpenLockDC", "CloseLockDC", "DisarmDC",
             "Interruptable", "TrapDetectable", "TrapDetectDC", "TrapDisarmable", "TrapFlag",
             "TrapOneShot":
-          v = utp.getOrDefault(label, 0.GffByte).int
+          v = utp[label, 0.GffByte].int
       when v is string:
         case label
         of "OnClosed", "OnDamaged", "OnDeath", "OnDisarm", "OnHeartbeat", "OnInvDisturbed",
             "OnLock", "OnMeleeAttacked", "OnOpen", "OnSpellCastAt", "OnTrapTriggered",
             "OnUnlock", "OnUsed", "OnUserDefined":
-          v = $utp.getOrDefault(label, "".GffResRef)
+          v = $utp[label, "".GffResRef]
     result &= placeable

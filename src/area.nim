@@ -54,12 +54,12 @@ proc areaList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[
       name: name,
       xNameLowercase: name.toLower,
       resref: rr.resRef,
-      tag: are["Tag", GffCExoString],
+      tag: are["Tag", "".GffCExoString],
       flags: flag,
       xFlagInterior: flags.contains(areaInterior),
       xFlagUnderground: flags.contains(areaUnderground),
       xFlagNatural: flags.contains(areaNatural),
-      comments: are["Comments", GffCExoString],
+      comments: are["Comments", "".GffCExoString],
       loadScreenID: are["LoadScreenID", 0.GffWord].int,
       fogClipDist: are["FogClipDist", 0.GffFloat],
     )
@@ -78,7 +78,7 @@ proc areaList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[
       when v is string:
         case label
         of "Tileset", "OnEnter", "OnExit", "OnHeartbeat", "OnUserDefined":
-          v = $are[label, GffResRef]
+          v = $are[label, "".GffResRef]
     if sound2da.isSome:
       area.xAmbientSndDayResource = sound2da.get(TwoDA())[area.ambientSndDay, "Resource", ""]
       area.xAmbientSndNightResource = sound2da.get[area.ambientSndNight, "Resource", ""]

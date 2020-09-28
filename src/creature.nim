@@ -121,7 +121,7 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): 
       parentFactionId = factionInfo.parents.getOrDefault(factionId, -1)
       parentFactionName = factionInfo.names.getOrDefault(parentFactionId, "")
       classInfo = utc["ClassList", GffList].toClassInfo(classes2da, dlg, tlk)
-      alignment = Alignment(lawfulChaotic: utc["LawfulChaotic", GffByte], goodEvil: utc["GoodEvil", GffByte])
+      alignment = Alignment(lawfulChaotic: utc["LawfulChaotic", 0.GffByte], goodEvil: utc["GoodEvil", 0.GffByte])
     var creature = Creature(
       firstName: name.first,
       lastName: name.last,
@@ -151,9 +151,9 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): 
       goodEvil: alignment.goodEvil,
       xRaceName: racialtypes2da.get(TwoDA())[utc["Race", 0.GffByte], "Name", "0"].tlkText(dlg, tlk),
       xGenderName: gender2da.get(TwoDA())[utc["Gender", 0.GffByte], "Name", "0"].tlkText(dlg, tlk),
-      tag: utc["Tag", GffCExoString],
-      comment: utc["Comment", GffCExoString],
-      conversation: $utc["Conversation", GffResRef],
+      tag: utc["Tag", "".GffCExoString],
+      comment: utc["Comment", "".GffCExoString],
+      conversation: $utc["Conversation", "".GffResRef],
       maxHitPoints: utc["MaxHitPoints", 0.GffShort],
       challengeRating: crs.getOrDefault(rr.resRef, -1),
       crAdjust: utc["CRAdjust", 0.GffInt],
@@ -172,11 +172,11 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): 
         of "Race", "Gender", "NaturalAC", "Str", "Dex", "Con", "Int", "Wis", "Cha",
             "Lootable", "Disarmable", "IsImmortal", "NoPermDeath", "Plot", "Interruptable",
             "PerceptionRange":
-          v = utc.getOrDefault(label, 0.GffByte).int
+          v = utc[label, 0.GffByte].int
       when v is string:
         case label
         of "ScriptAttacked", "ScriptDamaged", "ScriptDeath", "ScriptDialogue", "ScriptDisturbed",
             "ScriptEndRound", "ScriptHeartbeat", "ScriptOnBlocked", "ScriptOnNotice", "ScriptRested",
             "ScriptSpawn", "ScriptSpellAt", "ScriptUserDefine":
-          v = $utc.getOrDefault(label, "".GffResRef)
+          v = $utc[label, "".GffResRef]
     result &= creature

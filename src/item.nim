@@ -28,7 +28,7 @@ proc itemList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[
     let
       uti = rm.getGffRoot(rr)
       name = uti["LocalizedName", GffCExoLocString].getStr(dlg, tlk)
-      baseItemId = uti["BaseItem", GffInt].int
+      baseItemId = uti["BaseItem", -1.GffInt].int
       baseItem = baseitems2da.get(TwoDA())[baseItemId, "Name", "0"].tlkText(dlg, tlk)
       paletteId = uti["PaletteID", 0.GffByte].int
     result &= Item(
@@ -50,5 +50,5 @@ proc itemList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[
       cursed: uti["Cursed", 0.GffByte].int,
       plot: uti["Plot", 0.GffByte].int,
       stolen: uti["Stolen", 0.GffByte].int,
-      comment: uti["Comment", ""],
+      comment: uti["Comment", "".GffCExoString],
     )
