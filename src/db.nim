@@ -10,13 +10,13 @@ type
     name: string
     coltype: SqliteType
 
-proc createTable(db: DbConn, tablename: string, cols: seq[Column]) =
+proc createTable(db: DbConn, tablename: string, cols: openArray[Column]) =
   let create = "create table " & tablename &
     " (id integer primary key," &
     cols.filterIt(it.name != "id").mapIt(it.name & " " & $it.coltype).join(",") & ")"
   db.exec(create.sql)
 
-proc insert(db: DbConn, tablename: string, cols: seq[Column], rows: seq[seq[string]]) =
+proc insert(db: DbConn, tablename: string, cols: openArray[Column], rows: seq[seq[string]]) =
   let insertcols = "insert into " & tablename & " (" & cols.mapIt(it.name).join(",") & ")"
   let rowLen = cols.len # all rows have to have the same length, it would be an error otherwise
   db.exec(sql"begin transaction")
@@ -56,7 +56,7 @@ proc writeTable*(rows: seq[object | tuple], filename, tablename: string) =
   db.insert(tablename, cols, stringRows)
   db.close
 
-proc writeTable*(rows: seq[seq[string]], cols: seq[Column], filename, tablename: string) =
+proc writeTable*(rows: seq[seq[string]], cols: openArray[Column], filename, tablename: string) =
   let db = open(filename, "", "", "")
   db.exec(sql("drop table if exists " & tablename))
   if rows.len == 0: return
