@@ -138,7 +138,7 @@ creatures.writeTable(dbName, "creatures")
 
 if utes.len > 0:
   echo "Encounters (ute) found: " & $utes.len
-  utes.encounterList(rm, dlg, cTlk).writeTable(encounterCols(), dbName, "encounters")
+utes.writeEncounterTables(rm, dlg, cTlk, dbName)
 
 if utis.len > 0:
   echo "Items (uti) found: " & $utis.len

@@ -2,6 +2,7 @@ import neverwinter/[gff, resman, tlk]
 import db, helper
 
 const fields = [
+  ["id", "id"],
   ["Active", "byte"],
   ["Comment", "cexostring"],
   ["Difficulty", "int"],
@@ -25,12 +26,26 @@ const fields = [
   ["TemplateResRef", "resref"],
 ]
 
-proc encounterList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[seq[string]] =
-  for rr in list:
+# todo: can this be done at compile time?
+proc encounterCols(): seq[Column] =
+  for f in fields:
+    let coltype = case f[1]
+      of "id", "byte", "dword", "int": sqliteInteger
+      of "float": sqliteReal
+      else: sqliteText
+    result &= (name: f[0], coltype: coltype)
+
+# todo: add looked up names for faction and parent faction
+proc writeEncounterTables*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk], dbName: string) =
+  var encounters = newSeq[seq[string]]()
+  var creatures = newSeq[seq[string]]()
+  for idx, rr in list:
+    let id = $(idx + 1)
     let ute = rm.getGffRoot(rr)
     var row = newSeq[string]()
     for f in fields:
       row.add case f[1]
+      of "id": id # id is added "manually" just in case sqlite does not number the rows as expected
       of "byte": $ute[f[0], 0.GffByte]
       of "cexolocstring": ute[f[0], GffCExoLocString].getStr(dlg, tlk)
       of "cexostring": ute[f[0], "".GffCExoString]
@@ -40,12 +55,9 @@ proc encounterList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]):
       else:
         echo "Error: Handling of field type " & f[1] & " not implemented."
         quit(QuitFailure)
-    result &= row
-
-proc encounterCols*(): seq[Column] =
-  for f in fields:
-    let coltype = case f[1]
-      of "byte", "dword", "int": sqliteInteger
-      of "float": sqliteReal
-      else: sqliteText
-    result &= (name: f[0], coltype: coltype)
+    encounters &= row
+    for c in ute["CreatureList", GffList]:
+      creatures &= @[id, $c["ResRef", "".GffResRef], $c["SingleSpawn", 0.GffByte]]
+  encounters.writeTable(encounterCols(), dbName, "encounters")
+  let encountersCreaturesCols = [("encounter_id", sqliteInteger), ("ResRef", sqliteText), ("SingleSpawn", sqliteText)]
+  creatures.writeTable(encountersCreaturesCols, dbName, "encounters_creatures")
