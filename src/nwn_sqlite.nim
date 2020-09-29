@@ -152,8 +152,7 @@ placeables.writeTable(dbName, "placeables")
 
 if ares.len > 0:
   echo "Areas (are) found: " & $ares.len
-let areas = ares.areaList(rm, dlg, cTlk)
-areas.writeTable(dbName, "areas")
+  ares.writeAreaTables(rm, dlg, cTlk, dbName)
 
 if sets.len > 0:
   echo "Tilesets (set) found: " & $sets.len

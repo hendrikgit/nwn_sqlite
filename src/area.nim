@@ -1,9 +1,36 @@
-import strutils, tables
+import sequtils, strutils, tables
 import neverwinter/[gff, resman, tlk, twoda]
-import helper
+import db, helper
+
+const gitEncounterFields: array[23, Field] = [
+  ("id", ftId),
+  ("area_id", ftId),
+  ("Difficulty", ftInt),
+  ("DifficultyIndex", ftInt),
+  ("Faction", ftDword),
+  ("LocalizedName", ftCExoLocString),
+  ("MaxCreatures", ftInt),
+  ("OnEntered", ftResRef),
+  ("OnExhausted", ftResRef),
+  ("OnExit", ftResRef),
+  ("OnHeartbeat", ftResRef),
+  ("OnUserDefined", ftResRef),
+  ("PlayerOnly", ftByte),
+  ("RecCreatures", ftInt),
+  ("Reset", ftByte),
+  ("ResetTime", ftInt),
+  ("Respawns", ftInt),
+  ("SpawnOption", ftInt),
+  ("Tag", ftCExoString),
+  ("TemplateResRef", ftResRef),
+  ("XPosition", ftFloat),
+  ("YPosition", ftFloat),
+  ("ZPosition", ftFloat),
+]
 
 type
   Area = object
+    id: int
     name, xNameLowercase, resRef, tag: string
     height, width: int
     flags: int
@@ -35,11 +62,16 @@ type
 proc toFlags(v: int): AreaFlags =
   cast[AreaFlags](v)
 
-proc areaList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[Area] =
+proc writeAreaTables*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk], dbName: string) =
   let sound2da = rm.get2da("ambientsound")
   let music2da = rm.get2da("ambientmusic")
-  var tilesetNames = initTable[string, string]()
-  for rr in list:
+  var
+    areas = newSeq[Area]()
+    tilesetNames = initTable[string, string]()
+    encounters = newSeq[seq[string]]()
+    encounterId = 1
+    encounterCreatures = newSeq[seq[string]]()
+  for idxArea, rr in list:
     let
       are = rm.getGffRoot(rr)
       gitrr = newResRef(rr.resRef, "git".getResType)
@@ -50,7 +82,16 @@ proc areaList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[
     if rm.contains(gitrr):
       let git = rm.getGffRoot(gitrr)
       gitAreaProps = git["AreaProperties", GffStruct].fields
+      for e in git["Encounter List", GffList]:
+        encounters &= gitEncounterFields.map proc (f: Field): string =
+          if f.name == "id": $encounterId
+          elif f.name == "area_id": $(idxArea + 1)
+          else: e.getStringValue(f, dlg, tlk)
+        for c in e["CreatureList", GffList]:
+          encounterCreatures &= @[$encounterId, $c["ResRef", "".GffResRef], $c["SingleSpawn", 0.GffByte]]
+        inc encounterId
     var area = Area(
+      id: idxArea + 1,
       name: name,
       xNameLowercase: name.toLower,
       resref: rr.resRef,
@@ -94,4 +135,11 @@ proc areaList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[
         .readAll.getTilesetName(dlg, tlk)
       tilesetNames[area.tileset] = name
       area.xTilesetName = name
-    result &= area
+    areas &= area
+  areas.writeTable(dbName, "areas")
+  encounters.writeTable(gitEncounterFields.toColumns, dbName, "area_encounters")
+  encounterCreatures.writeTable(
+    [("area_encounter_id", sqliteInteger), ("ResRef", sqliteText), ("SingleSpawn", sqliteText)],
+    dbName,
+    "area_encounters_creatures"
+  )

@@ -151,9 +151,9 @@ proc getStr*(locstr: GffCExoLocString, dlg, tlk: Option[SingleTlk]): string =
   if locstr.strRef != BadStrRef:
     return locstr.strRef.tlkText(dlg, tlk)
 
-proc getStringValue*(gff: GffRoot, f: Field, dlg, tlk: Option[SingleTlk], id = "-1"): string =
+proc getStringValue*(gff: GffStruct, f: Field, dlg, tlk: Option[SingleTlk]): string =
   case f.fieldType
-  of ftId: id
+  of ftId: "-1"
   of ftByte: $gff[f.name, 0.GffByte]
   of ftDword: $gff[f.name, 0.GffDword]
   of ftInt: $gff[f.name, -1.GffInt]
