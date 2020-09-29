@@ -151,6 +151,17 @@ proc getStr*(locstr: GffCExoLocString, dlg, tlk: Option[SingleTlk]): string =
   if locstr.strRef != BadStrRef:
     return locstr.strRef.tlkText(dlg, tlk)
 
+proc getStringValue*(gff: GffRoot, f: Field, dlg, tlk: Option[SingleTlk], id = "-1"): string =
+  case f.fieldType
+  of ftId: id
+  of ftByte: $gff[f.name, 0.GffByte]
+  of ftDword: $gff[f.name, 0.GffDword]
+  of ftInt: $gff[f.name, -1.GffInt]
+  of ftFloat: $gff[f.name, -1.GffFloat]
+  of ftResRef: $gff[f.name, "".GffResRef]
+  of ftCExoString: gff[f.name, "".GffCExoString]
+  of ftCExoLocString: gff[f.name, GffCExoLocString].getStr(dlg, tlk)
+
 proc getTilesetName*(content: string, dlg, tlk: Option[SingleTlk]): string =
   for l in content.splitLines:
     if l.startsWith("UnlocalizedName="):
