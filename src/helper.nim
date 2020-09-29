@@ -1,7 +1,7 @@
 import os, options, sequtils, streams, strutils, tables
 import neverwinter/[erf, gff, resman, tlk, twoda]
-import resfilecontainer
-
+import db, resfilecontainer
+# remove
 const dataFileExtensions* = [
   ".2da",
   ".are",
@@ -21,6 +21,17 @@ const dataFileExtensions* = [
 ]
 
 type
+  FieldType* = enum
+    ftId
+    ftByte, ftDword, ftInt
+    ftFloat
+    ftResRef, ftCExoString,
+    ftCExoLocString
+
+  Field* = tuple
+    name: string
+    fieldType: FieldType
+
   PalcusInfo* = Table[int, tuple[name: string, full: string]]
 
   FactionInfo* = object
@@ -171,3 +182,11 @@ proc toFactionInfo*(repute: GffRoot): FactionInfo =
       result.parents[fac.id] = fac.id
     else:
       result.parents[fac.id] = pId.int
+
+proc toColumns*(fields: openArray[Field]): seq[Column] =
+  for f in fields:
+    let coltype = case f.fieldType
+      of ftId, ftByte, ftDword, ftInt: sqliteInteger
+      of ftFloat: sqliteReal
+      of ftResRef, ftCExoString, ftCExoLocString: sqliteText
+    result &= (name: f.name, coltype: coltype)

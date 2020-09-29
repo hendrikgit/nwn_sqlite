@@ -1,18 +1,6 @@
 import neverwinter/[gff, resman, tlk]
 import db, helper
 
-type
-  FieldType = enum
-    ftId
-    ftByte, ftDword, ftInt
-    ftFloat
-    ftResRef, ftCExoString,
-    ftCExoLocString
-
-  Field = tuple
-    name: string
-    fieldType: FieldType
-
 const fields: array[22, Field] = [
   ("id", ftId),
   ("Active", ftByte),
@@ -38,14 +26,6 @@ const fields: array[22, Field] = [
   ("TemplateResRef", ftResRef),
 ]
 
-proc encounterCols(): seq[Column] =
-  for f in fields:
-    let coltype = case f.fieldType
-      of ftId, ftByte, ftDword, ftInt: sqliteInteger
-      of ftFloat: sqliteReal
-      of ftResRef, ftCExoString, ftCExoLocString: sqliteText
-    result &= (name: f.name, coltype: coltype)
-
 # todo: add looked up names for faction and parent faction
 proc writeEncounterTables*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk], dbName: string) =
   var encounters = newSeq[seq[string]]()
@@ -67,6 +47,6 @@ proc writeEncounterTables*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[Singl
     encounters &= row
     for c in ute["CreatureList", GffList]:
       creatures &= @[id, $c["ResRef", "".GffResRef], $c["SingleSpawn", 0.GffByte]]
-  encounters.writeTable(encounterCols(), dbName, "encounters")
+  encounters.writeTable(fields.toColumns, dbName, "encounters")
   let encountersCreaturesCols = [("encounter_id", sqliteInteger), ("ResRef", sqliteText), ("SingleSpawn", sqliteText)]
   creatures.writeTable(encountersCreaturesCols, dbName, "encounters_creatures")
