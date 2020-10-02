@@ -80,6 +80,10 @@ Column names match the names of the fields/keys in the corresponding gff. Additi
 * [ambientmusic2da](#ambientmusic2da)
 * [ambientsound2da](#ambientsound2da)
 * [tilesets](#tilesets)
+* [area_encounters](#area_encounters)
+* [area_encounters_creatures](#area_encounters_creatures)
+* [ute_encounters](#ute_encounters)
+* [ute_encounters_creatures](#ute_encounters_creatures)
 
 ### areas
 ```
@@ -330,4 +334,81 @@ cid  name                      type
 0    id                        integer
 1    Resref                    text
 2    Name                      text
+```
+
+### area_encounters
+```
+cid  name                      type
+---  ------------------------  -------
+0    id                        integer
+1    area_id                   integer
+2    Difficulty                integer
+3    DifficultyIndex           integer
+4    Faction                   integer
+5    LocalizedName             text
+6    MaxCreatures              integer
+7    OnEntered                 text
+8    OnExhausted               text
+9    OnExit                    text
+10   OnHeartbeat               text
+11   OnUserDefined             text
+12   PlayerOnly                integer
+13   RecCreatures              integer
+14   Reset                     integer
+15   ResetTime                 integer
+16   Respawns                  integer
+17   SpawnOption               integer
+18   Tag                       text
+19   TemplateResRef            text
+20   XPosition                 real
+21   YPosition                 real
+22   ZPosition                 real
+```
+
+### area_encounters_creatures
+```
+cid  name                      type
+---  ------------------------  -------
+0    id                        integer
+1    area_encounter_id         integer
+2    ResRef                    text
+3    SingleSpawn               text
+```
+
+### ute_encounters
+```
+cid  name                      type
+---  ------------------------  -------
+0    id                        integer
+1    Active                    integer
+2    Comment                   text
+3    Difficulty                integer
+4    DifficultyIndex           integer
+5    Faction                   integer
+6    LocalizedName             text
+7    MaxCreatures              integer
+8    OnEntered                 text
+9    OnExhausted               text
+10   OnExit                    text
+11   OnHeartbeat               text
+12   OnUserDefined             text
+13   PaletteID                 integer
+14   PlayerOnly                integer
+15   RecCreatures              integer
+16   Reset                     integer
+17   ResetTime                 integer
+18   Respawns                  integer
+19   SpawnOption               integer
+20   Tag                       text
+21   TemplateResRef            text
+```
+
+### ute_encounters_creatures
+```
+cid  name                      type
+---  ------------------------  -------
+0    id                        integer
+1    ute_encounter_id          integer
+2    ResRef                    text
+3    SingleSpawn               text
 ```
