@@ -105,7 +105,7 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): 
     crs: Table[string, int]
     palcusInfo: PalcusInfo
   if rm.contains(newResRef("creaturepalcus", "itp".getResType)):
-    let creaturepalcus = rm.getGffRoot("creaturepalcus", "itp")["MAIN", GffList]
+    let creaturepalcus = rm.getGffRoot("creaturepalcus", "itp")["MAIN", @[].GffList]
     for c in creaturepalcus.flatten:
       if not c.hasField("RESREF", GffResRef): continue
       crs[$c["RESREF", GffResRef]] = c["CR", GffFloat].toInt
@@ -120,7 +120,7 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): 
       factionName = factionInfo.names.getOrDefault(factionId, "")
       parentFactionId = factionInfo.parents.getOrDefault(factionId, -1)
       parentFactionName = factionInfo.names.getOrDefault(parentFactionId, "")
-      classInfo = utc["ClassList", GffList].toClassInfo(classes2da, dlg, tlk)
+      classInfo = utc["ClassList", @[].GffList].toClassInfo(classes2da, dlg, tlk)
       alignment = Alignment(lawfulChaotic: utc["LawfulChaotic", 0.GffByte], goodEvil: utc["GoodEvil", 0.GffByte])
     var creature = Creature(
       firstName: name.first,

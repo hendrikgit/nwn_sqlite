@@ -82,14 +82,14 @@ proc writeAreaTables*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]
     if rm.contains(gitrr):
       let git = rm.getGffRoot(gitrr)
       gitAreaProps = git["AreaProperties", GffStruct].fields
-      for e in git["Encounter List", GffList]:
+      for e in git["Encounter List", @[].GffList]:
         var fields = newSeq[string]()
         for f in gitEncounterFields:
           if f.name == "id": fields &= $encounterId
           elif f.name == "area_id": fields &= $(idxArea + 1)
           else: fields &= e.getStringValue(f, dlg, tlk)
         encounters &= fields
-        for c in e["CreatureList", GffList]:
+        for c in e["CreatureList", @[].GffList]:
           encounterCreatures &= @[$encounterId, $c["ResRef", "".GffResRef], $c["SingleSpawn", 0.GffByte]]
         inc encounterId
     var area = Area(

@@ -85,7 +85,7 @@ if modFiles.len > 0:
       cTlk = some tlk.get.openFileStream.readSingleTlk
     else:
       echo "Warning: Custom tlk file required by module not found: " & cTlkName & ".tlk"
-  for hak in ifo["Mod_HakList", GffList]:
+  for hak in ifo["Mod_HakList", @[].GffList]:
     let hakName = hak["Mod_Hak", GffCExoString] & ".hak"
     if dataFiles.filterIt(it.endsWith(hakName)).len == 0:
       echo "Warning: Hak required by module not found: " & hakName

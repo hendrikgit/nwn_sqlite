@@ -30,7 +30,7 @@ type
 proc placeableList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[Placeable] =
   let
     palcusInfo = if rm.contains(newResRef("placeablepalcus", "itp".getResType)):
-      rm.getGffRoot("placeablepalcus", "itp")["MAIN", GffList].toPalcusInfo(dlg, tlk) else: PalcusInfo()
+      rm.getGffRoot("placeablepalcus", "itp")["MAIN", @[].GffList].toPalcusInfo(dlg, tlk) else: PalcusInfo()
     factionInfo = if rm.contains(newResRef("repute", "fac".getResType)):
       rm.getGffRoot("repute", "fac").toFactionInfo else: FactionInfo()
   for rr in list:

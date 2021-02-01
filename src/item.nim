@@ -23,7 +23,7 @@ proc itemList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): seq[
   var palcusInfo: PalcusInfo
   if rm.contains(newResRef("itempalcus", "itp".getResType)):
     let itempalcus = rm.getGffRoot("itempalcus", "itp")
-    palcusInfo = toPalcusInfo(itempalcus["MAIN", GffList], dlg, tlk)
+    palcusInfo = toPalcusInfo(itempalcus["MAIN", @[].GffList], dlg, tlk)
   for rr in list:
     let
       uti = rm.getGffRoot(rr)

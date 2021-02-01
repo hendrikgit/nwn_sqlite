@@ -35,7 +35,7 @@ proc writeEncounterTables*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[Singl
     let id = $(idx + 1)
     let ute = rm.getGffRoot(rr)
     encounters &= fields.mapIt(if it.name == "id": id else: ute.getStringValue(it, dlg, tlk))
-    for c in ute["CreatureList", GffList]:
+    for c in ute["CreatureList", @[].GffList]:
       creatures &= @[id, $c["ResRef", "".GffResRef], $c["SingleSpawn", 0.GffByte]]
   encounters.writeTable(fields.toColumns, dbName, "ute_encounters")
   let encountersCreaturesCols = [("ute_encounter_id", sqliteInteger), ("ResRef", sqliteText), ("SingleSpawn", sqliteText)]
