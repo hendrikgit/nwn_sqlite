@@ -1,4 +1,4 @@
-import os, options, sequtils, streams, strutils, tables
+import os, options, sequtils, streams, strutils, sugar, tables
 import neverwinter/[erf, gff, resman, tlk, twoda]
 import db, resfilecontainer
 # remove
@@ -57,7 +57,7 @@ proc addFiles*(rm: ResMan, files: seq[string], filterExtensions = newSeq[string]
     if filterExtensions.len == 0:
       files
     else:
-      files.filterIt filterExtensions.any do (ext: string) -> bool: it.endsWith(ext)
+      files.filter(f => filterExtensions.any(ext => f.endsWith(ext)))
   if filesToAdd.len > 0:
     echo "Adding " & $filesToAdd.len & " files"
     for ext in filterExtensions:
@@ -87,10 +87,10 @@ proc get2da*(rm: ResMan, name: string): Option[TwoDA] =
 
 proc getDataFiles*(paths: seq[string]): seq[string] =
   for path in paths:
-    if path.existsFile:
+    if path.fileExists:
       if path.splitFile.ext in dataFileExtensions:
         result &= path
-    elif path.existsDir:
+    elif path.dirExists:
       for file in path.joinPath("*").walkFiles:
         if file.splitFile.ext in dataFileExtensions:
           result &= file

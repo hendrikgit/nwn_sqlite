@@ -1,4 +1,4 @@
-import sequtils, strutils, tables
+import strutils, tables
 import neverwinter/[gff, resman, tlk, twoda]
 import db, helper
 
@@ -83,10 +83,12 @@ proc writeAreaTables*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]
       let git = rm.getGffRoot(gitrr)
       gitAreaProps = git["AreaProperties", GffStruct].fields
       for e in git["Encounter List", GffList]:
-        encounters &= gitEncounterFields.map proc (f: Field): string =
-          if f.name == "id": $encounterId
-          elif f.name == "area_id": $(idxArea + 1)
-          else: e.getStringValue(f, dlg, tlk)
+        var fields = newSeq[string]()
+        for f in gitEncounterFields:
+          if f.name == "id": fields &= $encounterId
+          elif f.name == "area_id": fields &= $(idxArea + 1)
+          else: fields &= e.getStringValue(f, dlg, tlk)
+        encounters &= fields
         for c in e["CreatureList", GffList]:
           encounterCreatures &= @[$encounterId, $c["ResRef", "".GffResRef], $c["SingleSpawn", 0.GffByte]]
         inc encounterId

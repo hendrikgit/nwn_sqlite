@@ -7,8 +7,8 @@ srcDir        = "src"
 bin           = @["nwn_sqlite"]
 
 # Dependencies
-requires "nim == 1.2.6"
-requires "neverwinter == 1.3.1"
+requires "nim >= 1.4.2"
+requires "neverwinter == 1.4.2"
 
 task getsqlite3, "Download amalgamated sqlite3.c source from https://www.sqlite.org":
   const
