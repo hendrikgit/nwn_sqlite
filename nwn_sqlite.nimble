@@ -80,3 +80,23 @@ task macos, "Build macOS binary with sqlite3 statically linked":
   echo "Building macOS binary"
   let file = bin[0]
   exec "nimble build -d:release --dynlibOverride:sqlite3 --passL:macsqlite3.a " & file
+
+task clean, "Remove downloaded and compiled SQLite files":
+  var removeFiles = @[
+    "sqlite3.c",
+    "sqlite3.o",
+    "sqlite3.a",
+    "winsqlite3.a",
+    "macsqlite3.o",
+    "macsqlite3.a",
+  ]
+  for f in bin:
+    removeFiles &= f
+    removeFiles &= f & ".exe"
+  for f in removeFiles:
+    if fileExists f:
+      try:
+        rmFile(f)
+        echo "Removed file: " & f
+      except OSError:
+       echo "Error: Could not remove file: " & f
