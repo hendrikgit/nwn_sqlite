@@ -1,4 +1,4 @@
-import db_sqlite, sequtils, strutils
+import db_sqlite, sequtils, strformat, strutils
 
 type
   SqliteType* = enum
@@ -11,13 +11,13 @@ type
     coltype: SqliteType
 
 proc createTable(db: DbConn, tablename: string, cols: openArray[Column]) =
-  let create = "create table " & tablename &
+  let create = &"create table \"{tablename}\"" &
     " (id integer primary key," &
     cols.filterIt(it.name != "id").mapIt(it.name & " " & $it.coltype).join(",") & ")"
   db.exec(create.sql)
 
 proc insert(db: DbConn, tablename: string, cols: openArray[Column], rows: seq[seq[string]]) =
-  let insertcols = "insert into " & tablename & " (" & cols.mapIt(it.name).join(",") & ")"
+  let insertcols = &"insert into \"{tablename}\" (" & cols.mapIt(it.name).join(",") & ")"
   let rowLen = cols.len # all rows have to have the same length, it would be an error otherwise
   db.exec(sql"begin transaction")
   for row in rows:
@@ -26,7 +26,7 @@ proc insert(db: DbConn, tablename: string, cols: openArray[Column], rows: seq[se
 
 proc writeTable*(rows: seq[object | tuple], filename, tablename: string) =
   let db = open(filename, "", "", "")
-  db.exec(sql("drop table if exists " & tablename))
+  db.exec(sql(&"drop table if exists \"{tablename}\""))
   if rows.len == 0: return
   var cols = newSeq[Column]()
   for k, v in rows[0].fieldPairs:
@@ -58,7 +58,7 @@ proc writeTable*(rows: seq[object | tuple], filename, tablename: string) =
 
 proc writeTable*(rows: seq[seq[string]], cols: openArray[Column], filename, tablename: string) =
   let db = open(filename, "", "", "")
-  db.exec(sql("drop table if exists " & tablename))
+  db.exec(sql(&"drop table if exists \"{tablename}\""))
   if rows.len == 0: return
   db.createTable(tablename, cols)
   db.insert(tablename, cols, rows)
