@@ -13,7 +13,7 @@ jobs:
   build-linux-win:
     runs-on: ubuntu-20.04
     env:
-      NIMVER: "1.4.2"
+      NIMVER: "1.4.8"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
