@@ -1,12 +1,10 @@
-import encodings, os, sequtils, streams, strformat, strutils
+import encodings, os, sequtils, streams, strformat, strutils, sugar
 import neverwinter/[gff, key, resman, tlk, twoda, util]
 import area, creature, db, encounter, helper, item, placeable, restables
 
 const version = getEnv("VERSION")
 
-let paths = commandLineParams().filterIt(not it.startsWith("-"))
-if paths.len == 0 or not commandLineParams().anyIt it.startsWith("-o:"):
-  echo &"""
+const usage = &"""
 (Version: {version})
 Please provide one or more directories or files as parameters.
 Subdirectories are ignored.
@@ -22,17 +20,50 @@ Use:
   -e:encoding              to specify the encoding of the input
                            (for example "cp1251" for Cyrillic).
   -withkey                 to include the resources indexed by .key files in the output.
+  -2da:filename.2da        to create a table with the contents of that 2da file,
+                           this paramneter can be used multiple times.
+  -2daonly                 only create tables for files specified by -2da: parameters.
 
 Existing tables will be overwritten.
 """
+
+let paths = commandLineParams().filterIt(not it.startsWith("-"))
+let twodaOnly = commandLineParams().findItIdx(it == "-2daonly") != -1
+if not commandLineParams().anyIt it.startsWith("-o:"):
+  echo usage
+  echo "Error: Missing \"-o:\" parameter"
+  quit(QuitFailure)
+if paths.len == 0 and not twodaOnly:
+  echo usage
+  echo "Error: No files given as parameters"
   quit(QuitFailure)
 
 let
-  dbName = commandLineParams().findIt(it.startsWith("-o:")).get[3 .. ^1]
+  dbName = commandLineParams().findIt(it.startsWith("-o:")).get[3 .. ^1].expandTilde
   encodingParam = commandLineParams().findIt(it.startsWith("-e:"))
   withKey = commandLineParams().findItIdx(it == "-withkey") != -1
+  twodasParams = commandLineParams().filterIt(it.startsWith("-2da:")).mapIt(it[5 .. ^1].expandTilde)
   dataFiles = paths.getDataFiles
   rm = newResMan() # container added last to resman will be queried first
+
+for twodaFn in twodasParams:
+  if not twodaFn.fileExists:
+    echo "File from \"-2da:\" parameter not found: " & twodaFn
+  else:
+    let
+      twoda = twodaFn.newFileStream.readTwoDA
+      columns = @[("id", sqliteInteger)].concat(twoda.columns.mapIt((name: it, coltype: sqliteText)))
+      rows = collect(newSeq):
+        for idx, row in twoda.rows: @[$idx].concat(row.mapIt(it.get("")))
+      table = "2da_" & twodaFn.splitFile.name
+    echo "Writing 2da table for: " & twodaFn
+    writeTable(rows, columns, dbName, table)
+
+if twodaOnly:
+  if twodasParams.len == 0:
+    echo "Warning: \"-2daonly\" parameter set but no \"-2da:\" parameters. No tables will be written to the output file."
+  echo "\"-2daonly\" parameter set, skipping creation of all other tables."
+  quit(QuitSuccess)
 
 if encodingParam.isSome:
   let encoding = encodingParam.get[3 .. ^1]
