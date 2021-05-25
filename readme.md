@@ -13,9 +13,14 @@ If you are missing a column or a whole table that would be useful to you please 
 Binaries are available for download on the [releases](https://github.com/hendrikgit/nwn_sqlite/releases) page.
 
 ## What exactly does it do?
-It reads the information from Neverwinter files. A .mod file can be read and/or various GFF files like `.are`, `.utc`, `.uti` and so on. Names are looked up by reading the relevant `.2da` files and looking up strrefs in `dialog.tlk` or a possible custom tlk. The paths to these additional resources can be provided as command line arguments. The tool will run without dialog.tlk or .2da files but then some columns might not be filled.
+It reads the information from Neverwinter files. A .mod file can be read and/or various GFF files like `.are`, `.utc`, `.uti` and so on. Names are looked up by reading the relevant `.2da` files and looking up strrefs in `dialog.tlk` or a possible custom tlk. The paths to these additional resources can be provided as command line parameters. The tool will run without dialog.tlk or .2da files but then some columns might not be filled.
 
 That data is then written to a sqlite3 database file.
+
+The `-2da:` parameter can be used to convert any .2da file to a SQLite table. This parameter can be used multiple times. See also the [hint](#hints) about `cast`.  
+Use with `-2daonly` to create a database with only the requested .2da file tables.
+
+The `-withkey` parameter can be used to include resources from the base game which are skipped by default.
 
 ## Why do I need this?
 Having this sqlite table will allow you to query information comfortably and quickly via nwscript. Perhaps to select the most fitting creatures to spawn for an encounter. The sqlite database can be used by many other tools, too, like the graphical database tool seen in the screenshot above for a great overview.
@@ -41,6 +46,7 @@ Example program call on Linux:
 * Don't forget the servers override folder.
 * Column names in queries are case insensitve.
 * On macOS the tool needs to be allowed to run because of strict execution rules. The developer is unknown, macOS will complain. Allow it by holding ctrl right click on the file and open.
+* All colums, except id, of tables generated via the `-2da:` parameter have the type `TEXT`. To treat values as, for example, INTEGER use `cast(colname as integer)`. See https://sqlite.org/lang_expr.html#castexpr.
 
 ### Example queries
 See [the list](queries.md) of useful, interesting or funny example queries.
