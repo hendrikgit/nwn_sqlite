@@ -71,29 +71,37 @@ jobs:
 
   build-macos:
     runs-on: macos-latest
+    env:
+      NIMVER: "1.4.8"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
       - name: Cache nimble, sqlite3
+      # nim is installed to .nimble/bin/nim by choosenim
         uses: actions/cache@v2
         id: cache
         with:
-          key: build-${{ runner.os }}
+          key: build-${{ runner.os }}-nim-${{ env.NIMVER }}
           path: |
+            ~/.choosenim
             ~/.nimble
             sqlite3.*
             macsqlite3.*
 
-      - name: Install nim
-        run: brew install nim
+      - name: Download and setup nim, nimble
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          curl https://nim-lang.org/choosenim/init.sh -o choosenim-init.sh
+          sh choosenim-init.sh -y
+          PATH="~/.nimble/bin:$PATH" choosenim $NIMVER
 
       - name: Install nimble packages
-        run: nimble install --depsOnly -y
+        run: PATH="~/.nimble/bin:$PATH" nimble install --depsOnly -y
 
       - name: Compile for macOS
         run: |
-          VERSION=`git rev-parse --short HEAD` nimble macos
+          PATH="~/.nimble/bin:$PATH" VERSION=`git rev-parse --short HEAD` nimble macos
           ls -l nwn_sqlite
           file nwn_sqlite
 
