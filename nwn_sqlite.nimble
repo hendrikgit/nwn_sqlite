@@ -1,5 +1,5 @@
 # Package
-version       = "0.11.1"
+version       = "0.12.0"
 author        = "Hendrik Albers"
 description   = "Reads data from a Neverwinter Nights module and writes it to a sqlite database"
 license       = "MIT"
