@@ -12,8 +12,8 @@ requires "neverwinter == 1.5.8"
 
 task getsqlite3, "Download amalgamated sqlite3.c source from https://www.sqlite.org":
   const
-    zip = "sqlite-amalgamation-3350500.zip"
-    url = "https://sqlite.org/2021/" & zip
+    zip = "sqlite-amalgamation-3410000.zip"
+    url = "https://sqlite.org/2023/" & zip
   if not fileExists zip:
     echo "Downloading " & url & " to " & zip
     if findExe("wget") != "":
