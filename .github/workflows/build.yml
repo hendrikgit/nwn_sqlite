@@ -11,9 +11,9 @@ on:
 
 jobs:
   build-linux-win:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     env:
-      NIMVER: "1.4.8"
+      NIMVER: "1.6.10"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -30,13 +30,7 @@ jobs:
             winsqlite3.*
 
       - name: Install apt packages
-        run: sudo apt-get install -y --no-install-recommends binutils musl-tools mingw-w64
-
-      - name: Install newer upx
-        run: |
-          wget https://github.com/upx/upx/releases/download/v3.96/upx-3.96-amd64_linux.tar.xz
-          tar xf upx-3.96-amd64_linux.tar.xz upx-3.96-amd64_linux/upx --strip-components 1
-          sudo mv upx /usr/bin/
+        run: sudo apt-get install -y --no-install-recommends binutils musl-tools mingw-w64 upx-ucl
 
       - name: Download and setup nim, nimble
         if: steps.cache.outputs.cache-hit != 'true'
@@ -102,7 +96,7 @@ jobs:
   build-macos:
     runs-on: macos-latest
     env:
-      NIMVER: "1.4.8"
+      NIMVER: "1.6.10"
     steps:
       - name: Checkout
         uses: actions/checkout@v2
