@@ -16,10 +16,10 @@ jobs:
       NIMVER: "1.6.10"
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Cache nim, nimble, sqlite3
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: cache
         with:
           key: build-${{ runner.os }}-nim-${{ env.NIMVER }}
@@ -99,11 +99,11 @@ jobs:
       NIMVER: "1.6.10"
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Cache nim, nimble, sqlite3
       # nim is installed to .nimble/bin/nim by choosenim
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         id: cache
         with:
           key: build-${{ runner.os }}-nim-${{ env.NIMVER }}
