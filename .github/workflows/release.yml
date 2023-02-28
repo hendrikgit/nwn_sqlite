@@ -46,7 +46,7 @@ jobs:
           file nwn_sqlite.exe
 
       - name: Upload Windows artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: nwn_sqlite.windows.amd64.static
           path: nwn_sqlite.exe
@@ -58,7 +58,7 @@ jobs:
           file nwn_sqlite
 
       - name: Upload Linux artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: nwn_sqlite.linux.amd64.static
           path: nwn_sqlite
@@ -100,7 +100,7 @@ jobs:
           file nwn_sqlite
 
       - name: Upload macOS artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: nwn_sqlite.macos.amd64
           path: nwn_sqlite
