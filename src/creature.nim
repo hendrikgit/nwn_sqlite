@@ -55,6 +55,9 @@ type
   Alignment = object
     lawfulChaotic, goodEvil: AlignmentRange
 
+converter toAlignmentRange(gb: GffByte): AlignmentRange =
+  if gb.int > 100: 100 else: gb.int
+
 proc toClassInfo(classList: GffList, classes2da: Option[TwoDA], dlg, tlk: Option[SingleTlk]): ClassInfo =
   result.id1 = -1
   result.id2 = -1
@@ -121,7 +124,7 @@ proc creatureList*(list: seq[ResRef], rm: ResMan, dlg, tlk: Option[SingleTlk]): 
       parentFactionId = factionInfo.parents.getOrDefault(factionId, -1)
       parentFactionName = factionInfo.names.getOrDefault(parentFactionId, "")
       classInfo = utc["ClassList", @[].GffList].toClassInfo(classes2da, dlg, tlk)
-      alignment = Alignment(lawfulChaotic: utc["LawfulChaotic", 0.GffByte], goodEvil: utc["GoodEvil", 0.GffByte])
+      alignment = Alignment(lawfulChaotic: utc["LawfulChaotic", 0.GffByte].toAlignmentRange, goodEvil: utc["GoodEvil", 0.GffByte].toAlignmentRange)
     var creature = Creature(
       firstName: name.first,
       lastName: name.last,
